@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌟 MP DREAM EVENTS & SOLUTIONS
 
-## Getting Started
+> **Chennai's Premier Event Management, Apartment Expos & Stall Solutions Platform**
 
-First, run the development server:
+![MP Dream Events & Solutions](public/images/logo-transparent.png)
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+
+---
+
+## 📖 Overview
+
+**MP DREAM EVENTS & SOLUTIONS** is a state-of-the-art web application engineered for Chennai's leading event management, luxury wedding staging, gated community apartment flea markets, vendor stall bookings, and business services provider.
+
+Built with **Next.js 15 (App Router)**, **React 19**, **TypeScript**, and **MongoDB**, the platform provides a seamless experience for event clients, stall vendors, visitors, and administrators.
+
+---
+
+## ✨ Key Features
+
+### 🏢 Public Platform
+* **⚡ Dynamic Hero Banner**: High-impact luxury showcase featuring 3D brand emblem, ambient glow effects, live statistics, and clear action triggers.
+* **📅 Interactive Events Calendar**: Filter and search upcoming music concerts, apartment expos, cultural galas, and corporate conferences across Chennai.
+* **🛍️ Apartment Expo Hub**: Specialized landing page for gated community flea markets, stall availability calculator, and vendor ROI insights.
+* **📝 Multi-Step Vendor Registration**: Seamless online booking application for craft, food, apparel, and lifestyle vendors to reserve stall spaces.
+* **🖼️ Rich Media Gallery**: Filterable photo gallery categorized into Weddings, Concerts, Apartment Expos, Corporate Stages, and Lighting.
+* **📞 Instant Contact & WhatsApp**: Integrated direct phone calls, interactive inquiry forms, and click-to-chat WhatsApp features.
+
+### 🔐 Admin Management Portal (`/admin`)
+* **📊 Dashboard Analytics**: Real-time counter of total events, pending vendor applications, client enquiries, and stall reservations.
+* **🎪 Event Management**: Complete CRUD interface to publish, edit, or archive upcoming expos and grand events.
+* **🏬 Vendor Application Approval**: Review vendor details, products, stall requirements, and update application status (Pending / Approved / Rejected).
+* **✉️ Client Enquiries Manager**: Track, answer, and manage customer service inquiries directly from the control panel.
+* **📸 Gallery Asset Management**: Upload and organize high-resolution event portfolio images.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
+- **UI Library**: [React 19](https://react.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) & Vanilla CSS Utility System
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/) with Mongoose ORM
+- **Authentication**: JWT Token & BCrypt Password Hashing
+- **Email System**: Nodemailer with SMTP integration
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+Ensure you have Node.js (v18.0 or later) installed on your system.
+
+### 2. Installation
+Clone the repository and install project dependencies:
+
+```bash
+git clone https://github.com/Suman-1108/Mp_Dreams.git
+cd Mp_Dreams
+npm install
+```
+
+### 3. Environment Setup
+Create a `.env.local` file in the root directory (refer to `.env.example`):
+
+```env
+# MongoDB Atlas Connection
+MONGODB_URI=your_mongodb_connection_string
+
+# Admin Security
+ADMIN_EMAIL=admin@mpdreamevents.com
+ADMIN_PASSWORD_HASH=your_bcrypt_hash
+JWT_SECRET=your_jwt_secret_key
+
+# Site & Contact Settings
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+WHATSAPP_NUMBER=917338999723
+NEXT_PUBLIC_WHATSAPP_NUMBER=917338999723
+```
+
+### 4. Running Locally
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the live application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Project Structure
 
-## Learn More
+```
+mp-dream-events/
+├── public/                  # Static assets & brand logos
+│   ├── images/              # Event banners & high-res logo badges
+│   └── favicon.ico          # App icon
+├── src/
+│   ├── app/                 # Next.js 15 App Router pages & API routes
+│   │   ├── (website)/       # Public pages (Home, About, Services, Expo, Gallery, Contact)
+│   │   ├── admin/           # Admin login & dashboard portal
+│   │   └── api/             # Backend REST API routes (Events, Vendors, Enquiries, Auth)
+│   ├── components/          # Modular React components
+│   │   ├── admin/           # Admin dashboard widgets & sidebar
+│   │   ├── forms/           # Vendor registration & contact forms
+│   │   ├── home/            # Hero banner, feature grids, stats counter
+│   │   └── layout/          # Navbar, Footer, Floating WhatsApp trigger
+│   ├── lib/                 # Database connection & utility helpers
+│   └── models/              # Mongoose database schemas
+├── .env.example             # Environment template
+├── .gitignore               # Git ignored patterns
+├── next.config.ts           # Next.js configuration
+├── package.json             # NPM dependencies & scripts
+└── README.md                # Project documentation
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📞 Contact & Support
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**MP DREAM EVENTS & SOLUTIONS**  
+📍 Chennai, Tamil Nadu, India  
+📞 Phone: [+91 73389 99723](tel:+917338999723)  
+📧 Email: [mpdreameventssolutions@gmail.com](mailto:mpdreameventssolutions@gmail.com)  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© 2026 **MP Dream Events & Solutions**. All rights reserved.
