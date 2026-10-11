@@ -6,9 +6,9 @@ import Event from "@/models/Event";
 import UpcomingEventsSection from "@/components/home/UpcomingEventsSection";
 
 export const metadata: Metadata = {
-  title: "Upcoming Expos & Events Calendar | MP DREAM EVENTS",
+  title: "Upcoming Apartment Events & Expos Calendar | MP DREAM EVENTS",
   description:
-    "Explore scheduled apartment exhibitions, flea markets, and corporate expos in Chennai. Reserve vendor stall spaces online.",
+    "Explore scheduled apartment events, exhibitions, flea markets, and community expos in Chennai. Reserve vendor stall spaces online.",
 };
 
 async function EventsListFetcher() {
@@ -46,10 +46,10 @@ export default function EventsPage() {
             LIVE SCHEDULE & STALL BOOKINGS
           </div>
           <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-tight font-outfit">
-            Upcoming Expos & Event Calendar
+            Upcoming Apartment Events & Expos Calendar
           </h1>
           <p className="text-slate-300 text-sm leading-relaxed">
-            Browse our confirmed events across gated communities, commercial venues, and corporate centers in Chennai.
+            Browse our confirmed apartment events, community exhibitions, and stall bazaars across gated communities in Chennai.
           </p>
         </div>
 

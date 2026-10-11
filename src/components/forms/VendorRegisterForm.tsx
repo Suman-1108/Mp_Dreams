@@ -160,7 +160,7 @@ export default function VendorRegisterForm({ initialEvent = "" }: { initialEvent
             type="text"
             value={formData.targetEvent}
             onChange={(e) => setFormData({ ...formData, targetEvent: e.target.value })}
-            placeholder="e.g. OMR Apartment Expo / Any upcoming"
+            placeholder="e.g. OMR Apartment Event / Expo / Any upcoming"
             className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 text-sm"
           />
         </div>

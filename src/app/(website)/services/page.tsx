@@ -35,11 +35,11 @@ export default function ServicesPage() {
     },
     {
       id: "expo",
-      title: "Apartment Expos & Stall Management",
-      desc: "Organizing weekend bazaars and festive exhibitions inside high-density gated apartment complexes for active consumer engagement.",
+      title: "Apartment Events, Expos & Stall Management",
+      desc: "Organizing weekend apartment events, community bazaars, and festive exhibitions inside high-density gated apartment complexes for active consumer engagement.",
       features: [
         "Standardized Waterproof Canopy Stalls",
-        "Resident Footfall & Marketing",
+        "Resident Footfall & Community Marketing",
         "Electrical Power Points & Security",
         "Vendor Onboarding & Support",
       ],

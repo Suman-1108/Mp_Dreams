@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function GalleryPage() {
   const galleryCategories = [
     { title: "Weddings & Receptions", count: "Stage & Mandap Decor" },
-    { title: "Apartment Expos", count: "Flea Market Stalls & Resident Crowds" },
+    { title: "Apartment Events & Expos", count: "Flea Market Stalls & Resident Crowds" },
     { title: "Corporate Events", count: "Seminars & Stage Audio-Visuals" },
     { title: "Stall Structures", count: "Canopy & Retail Display Setups" },
   ];
@@ -24,7 +24,7 @@ export default function GalleryPage() {
     },
     {
       title: "Festive Diwali Bazaar Flea Market",
-      category: "Apartment Expos",
+      category: "Apartment Events & Expos",
       location: "OMR Luxury Gated Society",
     },
     {
@@ -44,7 +44,7 @@ export default function GalleryPage() {
     },
     {
       title: "Weekend Organic Food Festival",
-      category: "Apartment Expos",
+      category: "Apartment Events & Expos",
       location: "Porur Apartment Township",
     },
   ];
@@ -62,7 +62,7 @@ export default function GalleryPage() {
             Event & Expo Photo Gallery
           </h1>
           <p className="text-slate-400 text-base leading-relaxed">
-            Take a visual tour of our beautifully staged weddings, apartment flea markets, and corporate events across Chennai.
+            Take a visual tour of our beautifully staged weddings, apartment events, flea markets, and corporate events across Chennai.
           </p>
         </div>
 

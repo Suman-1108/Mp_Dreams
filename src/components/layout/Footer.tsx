@@ -28,7 +28,7 @@ export default function Footer() {
             </Link>
 
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              Creating extraordinary event experiences through music, luxury mandap staging, high-density apartment expos, and corporate tax advisory across Chennai.
+              Creating extraordinary event experiences through vibrant apartment events, luxury mandap staging, high-density apartment expos, and corporate tax advisory across Chennai.
             </p>
 
             <div className="pt-2 flex items-center space-x-2 text-xs text-purple-400 font-semibold">
@@ -46,7 +46,7 @@ export default function Footer() {
               <li><Link href="/" className="hover:text-amber-400 transition">Home</Link></li>
               <li><Link href="/about" className="hover:text-amber-400 transition">About Company</Link></li>
               <li><Link href="/events" className="hover:text-amber-400 transition">Events Calendar</Link></li>
-              <li><Link href="/expo" className="hover:text-amber-400 transition">Apartment Expos</Link></li>
+              <li><Link href="/expo" className="hover:text-amber-400 transition">Apartment Events & Expos</Link></li>
               <li><Link href="/gallery" className="hover:text-amber-400 transition">Photo Gallery</Link></li>
               <li><Link href="/contact" className="hover:text-amber-400 transition">Contact Support</Link></li>
             </ul>
@@ -59,7 +59,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li><Link href="/services#weddings" className="hover:text-amber-400 transition">Weddings & Celebrations</Link></li>
-              <li><Link href="/expo" className="hover:text-amber-400 transition">Apartment Flea Markets</Link></li>
+              <li><Link href="/expo" className="hover:text-amber-400 transition">Apartment Events & Stalls</Link></li>
               <li><Link href="/vendors/register" className="hover:text-amber-400 transition">Stall Vendor Booking</Link></li>
               <li><Link href="/services#corporate" className="hover:text-amber-400 transition">Corporate & Stage Audio-Visuals</Link></li>
               <li><Link href="/accounting" className="hover:text-amber-400 transition">Accounting & GST Services</Link></li>
@@ -72,7 +72,7 @@ export default function Footer() {
               Newsletter & Updates
             </h4>
             <p className="text-slate-400 text-xs leading-relaxed">
-              Stay updated with upcoming apartment expos, new stall slots, and exclusive offers.
+              Stay updated with upcoming apartment events, new stall slots, and exclusive community expos.
             </p>
 
             <form onSubmit={(e) => e.preventDefault()} className="flex items-center">

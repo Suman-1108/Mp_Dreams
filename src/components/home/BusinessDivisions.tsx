@@ -11,8 +11,8 @@ export default function BusinessDivisions() {
       link: "/services#weddings",
     },
     {
-      title: "Apartment Expos & Stalls",
-      desc: "Organizing weekend bazaars inside high-density gated communities with full canopy stalls.",
+      title: "Apartment Events & Expos",
+      desc: "Organizing weekend apartment events, community bazaars, and high-footfall canopy stalls.",
       image: "/images/apartment-expo.jpg",
       link: "/expo",
     },

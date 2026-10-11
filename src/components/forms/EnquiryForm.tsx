@@ -139,7 +139,7 @@ export default function EnquiryForm({ defaultService = "Event Management", event
           >
             <option value="Event Management">Event Management & Decor</option>
             <option value="Wedding Planning">Wedding & Reception</option>
-            <option value="Apartment Expo Stall">Apartment Expo / Stall Booking</option>
+            <option value="Apartment Expo Stall">Apartment Events & Expos / Stall Booking</option>
             <option value="Corporate Event">Corporate Seminars & Cultural</option>
             <option value="Accounting & Tax">Accounting & Tax Services</option>
             <option value="General Enquiry">Other Enquiry</option>

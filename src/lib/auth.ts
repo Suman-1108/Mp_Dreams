@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const JWT_SECRET = process.env.JWT_SECRET || "mp_dream_events_secret_jwt_key_2026";
+const JWT_SECRET = process.env.JWT_SECRET;
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export const COOKIE_NAME = "mp_admin_token";

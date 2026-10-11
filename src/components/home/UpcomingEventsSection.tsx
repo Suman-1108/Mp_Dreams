@@ -80,10 +80,10 @@ export default function UpcomingEventsSection({ events = [] }: { events?: EventI
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
           <div>
             <div className="text-purple-400 font-bold text-xs tracking-widest uppercase mb-1">
-              UPCOMING EXPOS & EXHIBITIONS
+              UPCOMING APARTMENT EVENTS & EXPOS
             </div>
             <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight font-syne">
-              Catch Live Events & Expos
+              Live Apartment Events & Expos
             </h2>
           </div>
 
@@ -91,7 +91,7 @@ export default function UpcomingEventsSection({ events = [] }: { events?: EventI
             href="/events"
             className="inline-flex items-center space-x-1 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-amber-400 transition"
           >
-            <span>View All Scheduled Events</span>
+            <span>View All Apartment Events</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Link>
         </div>

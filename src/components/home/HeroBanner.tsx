@@ -28,7 +28,7 @@ export default function HeroBanner() {
             {/* Tagline Pill */}
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-purple-900/60 backdrop-blur-md border border-purple-500/40 text-purple-200 text-[10px] sm:text-xs font-bold tracking-widest uppercase shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-              <span>CHENNAI&apos;S PREMIER EVENT MANAGEMENT & APARTMENT EXPOS</span>
+              <span>CHENNAI&apos;S PREMIER APARTMENT EVENTS & EXPOS</span>
             </div>
 
           {/* Headline - Left Aligned */}
@@ -37,12 +37,12 @@ export default function HeroBanner() {
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
                 EXTRAORDINARY
               </span>{" "}
-              EXPERIENCES & EXPOS
+              APARTMENT EVENTS & EXPOS
             </h1>
 
             {/* Subtitle Paragraph */}
             <p className="text-slate-200/90 text-sm sm:text-base font-normal leading-relaxed max-w-xl">
-              Creating extraordinary experiences through grand event planning, luxury wedding decor, high-footfall apartment stall expos, and business solutions across Chennai.
+              Creating extraordinary experiences through vibrant apartment events, luxury celebrations, high-footfall apartment stall expos, and business solutions across Chennai.
             </p>
 
             {/* Action Buttons */}
@@ -62,7 +62,7 @@ export default function HeroBanner() {
                 <div className="w-6 h-6 rounded-full bg-purple-500/30 flex items-center justify-center group-hover:bg-purple-500 transition">
                   <Play className="w-3 h-3 text-amber-300 fill-amber-300 group-hover:text-white group-hover:fill-white" />
                 </div>
-                <span>Explore Expos</span>
+                <span>Explore Apartment Events</span>
               </Link>
 
               <Link
@@ -82,7 +82,7 @@ export default function HeroBanner() {
 
               <div>
                 <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-outfit">50+</div>
-                <div className="text-xs text-purple-200 font-medium mt-0.5">Apartment Expos</div>
+                <div className="text-xs text-purple-200 font-medium mt-0.5">Apartment Events & Expos</div>
               </div>
 
               <div>
@@ -105,8 +105,8 @@ export default function HeroBanner() {
           <Sparkles className="w-4 h-4 text-amber-300" />
         </div>
         <div>
-          <div className="text-xs font-bold text-white font-outfit">Chennai&apos;s #1 Live Event Stage</div>
-          <div className="text-[11px] text-purple-200 font-medium">Concerts, Luxury Receptions & Gated Expos</div>
+          <div className="text-xs font-bold text-white font-outfit">Chennai&apos;s #1 Event Stage & Expos</div>
+          <div className="text-[11px] text-purple-200 font-medium">Concerts, Luxury Receptions & Apartment Events</div>
         </div>
       </div>
 

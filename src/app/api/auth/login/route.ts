@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
-    const envEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+    const envEmail = process.env.ADMIN_EMAIL;
     const envPassHash = process.env.ADMIN_PASSWORD_HASH;
 
     let isValid = false;

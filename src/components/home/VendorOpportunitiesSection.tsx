@@ -27,10 +27,10 @@ export default function VendorOpportunitiesSection() {
             Vendor & Retailer Opportunities
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-syne text-white">
-            Grow Your Brand at High-Footfall Apartment Expos
+            Grow Your Brand at High-Footfall Apartment Events & Expos
           </h2>
           <p className="text-slate-400 text-base">
-            Reach thousands of gated community residents directly. High intent buyers, prime weekend slots, and organized stall management.
+            Reach thousands of gated community residents directly through vibrant apartment events. High intent buyers, prime weekend slots, and organized stall management.
           </p>
         </div>
 

@@ -4,9 +4,9 @@ import { Building2, Store, Users, CheckCircle2, ArrowRight } from "lucide-react"
 import VendorOpportunitiesSection from "@/components/home/VendorOpportunitiesSection";
 
 export const metadata: Metadata = {
-  title: "Apartment Stall Expos & Flea Markets Chennai | MP Dream Events",
+  title: "Apartment Events & Stall Expos Chennai | MP Dream Events",
   description:
-    "Organize or participate in premier apartment expos in Chennai gated communities. High resident footfall, full stall setup, and targeted marketing.",
+    "Organize or participate in premier apartment events and expos in Chennai gated communities. High resident footfall, full stall setup, and targeted marketing.",
 };
 
 export default function ExpoPage() {
@@ -24,13 +24,13 @@ export default function ExpoPage() {
         {/* Header */}
         <div className="max-w-3xl mx-auto text-center space-y-4">
           <div className="text-amber-400 font-semibold text-xs tracking-widest uppercase">
-            Gated Community Exhibitions
+            Gated Community Exhibitions & Events
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight font-syne text-white">
-            Apartment Expos & Commercial Flea Markets
+            Apartment Events, Expos & Bazaars
           </h1>
           <p className="text-slate-400 text-base leading-relaxed">
-            Connecting passionate retail vendors with active buyers right inside their residential communities.
+            Connecting passionate retail vendors with active buyers right inside apartment communities and gated societies.
           </p>
         </div>
 
@@ -51,14 +51,14 @@ export default function ExpoPage() {
         <div className="p-8 sm:p-12 rounded-3xl bg-zinc-950 border border-zinc-900 max-w-4xl mx-auto text-center space-y-6 shadow-2xl">
           <h2 className="text-3xl font-bold text-white font-syne">Are You An Apartment Society RWA / Committee?</h2>
           <p className="text-slate-300 text-sm max-w-2xl mx-auto">
-            Host a vibrant weekend festive bazaar in your society complex at zero cost to the RWA! We handle 100% of vendor setup, security, permits, and clean up.
+            Host a vibrant weekend apartment event or festive bazaar in your society complex at zero cost to the RWA! We handle 100% of vendor setup, security, permits, and clean up.
           </p>
           <div>
             <Link
-              href="/contact?service=Apartment%20Expo%20Stall"
+              href="/contact?service=Apartment%20Events%20%26%20Expos"
               className="inline-flex items-center space-x-2 px-8 py-4 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/20 transform hover:-translate-y-0.5"
             >
-              <span>Host An Expo In Your Apartment</span>
+              <span>Host An Apartment Event / Expo</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

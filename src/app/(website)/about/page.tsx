@@ -5,7 +5,7 @@ import { Building2, Award, Users, Target, ShieldCheck, ArrowRight, CheckCircle2 
 export const metadata: Metadata = {
   title: "About Us | MP Dream Events & Solutions Chennai",
   description:
-    "Learn about MP Dream Events & Solutions, Chennai's premier agency for event production, apartment expos, stall bookings, and business accounting.",
+    "Learn about MP Dream Events & Solutions, Chennai's premier agency for event production, apartment events & expos, stall bookings, and business accounting.",
 };
 
 export default function AboutPage() {

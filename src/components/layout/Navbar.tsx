@@ -15,7 +15,7 @@ export default function Navbar() {
     { name: "About", href: "/about" },
     { name: "Services", href: "/services" },
     { name: "Events Calendar", shortName: "Events", href: "/events" },
-    { name: "Apartment Expos", href: "/expo" },
+    { name: "Apartment Events", shortName: "Apartment Events", href: "/expo" },
     { name: "Vendor Registration", shortName: "Vendors", href: "/vendors/register" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
@@ -28,10 +28,10 @@ export default function Navbar() {
         <div className="w-full max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <span className="bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
-              LIVE EXPOS
+              APARTMENT EVENTS & EXPOS
             </span>
-            <span className="hidden sm:inline">CHENNAI&apos;S PREMIER EVENT, EXPO & STALL MANAGEMENT SOLUTIONS</span>
-            <span className="sm:hidden text-[11px]">Premier Events & Expos Chennai</span>
+            <span className="hidden sm:inline">CHENNAI&apos;S PREMIER APARTMENT EVENTS, EXPOS & STALL MANAGEMENT</span>
+            <span className="sm:hidden text-[11px]">Apartment Events & Expos Chennai</span>
           </div>
           <Link
             href="/contact"
@@ -63,7 +63,7 @@ export default function Navbar() {
                 MP DREAM <span className="text-amber-400 font-black">EVENTS</span>
               </span>
               <span className="text-[9px] uppercase tracking-widest text-slate-400 font-semibold leading-none">
-                Solutions & Expos
+                Apartment Events & Expos
               </span>
             </div>
           </Link>
