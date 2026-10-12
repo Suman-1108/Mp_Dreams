@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import AdminLoginForm from "@/components/forms/AdminLoginForm";
+import brandLogo from "@/assets/logo.png";
 
 export const metadata: Metadata = {
   title: "Admin Login | MP Dream Events & Solutions",
@@ -16,7 +17,7 @@ export default function AdminLoginPage() {
         <div className="text-center space-y-3">
           <div className="relative h-20 w-20 mx-auto drop-shadow-[0_0_16px_rgba(245,158,11,0.3)]">
             <Image
-              src="/images/logo-transparent.png"
+              src={brandLogo}
               alt="MP Dream Events Solutions"
               fill
               priority

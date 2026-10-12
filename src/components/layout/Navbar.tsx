@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Phone, ArrowRight, Menu, X } from "lucide-react";
+import brandLogo from "@/assets/logo.png";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -56,7 +57,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center space-x-3.5 group shrink-0 select-none py-1">
             <div className="relative h-[56px] w-[56px] sm:h-[62px] sm:w-[62px] lg:h-[66px] lg:w-[66px] group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_14px_rgba(245,158,11,0.3)]">
               <Image
-                src="/images/logo-transparent.png"
+                src={brandLogo}
                 alt="MP Dream Events Solutions"
                 fill
                 priority

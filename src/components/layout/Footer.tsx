@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import brandLogo from "@/assets/logo.png";
 
 function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -49,7 +50,7 @@ export default function Footer() {
             <Link href="/" className="flex items-center space-x-3.5 group">
               <div className="relative h-[72px] w-[72px] sm:h-[84px] sm:w-[84px] group-hover:scale-105 transition-all duration-300 shrink-0 drop-shadow-[0_0_16px_rgba(245,158,11,0.25)]">
                 <Image
-                  src="/images/logo-transparent.png"
+                  src={brandLogo}
                   alt="MP Dream Events Solutions"
                   fill
                   className="object-contain"

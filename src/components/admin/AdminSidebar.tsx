@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import brandLogo from "@/assets/logo.png";
 import {
   Calendar,
   MessageSquare,
@@ -44,7 +45,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }: { activeTab: s
         <div className="flex items-center space-x-3 px-2 py-2 border-b border-zinc-900 pb-4">
           <div className="relative h-11 w-11 shrink-0 drop-shadow-[0_0_10px_rgba(245,158,11,0.25)]">
             <Image
-              src="/images/logo-transparent.png"
+              src={brandLogo}
               alt="MP Dream Events"
               fill
               className="object-contain"
