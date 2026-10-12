@@ -76,17 +76,17 @@ export default function HeroBanner() {
           {/* Left Aligned Stats Row */}
             <div className="pt-8 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-xl">
               <div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-white font-outfit">150+</div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white font-outfit">100+</div>
                 <div className="text-xs text-purple-200 font-medium mt-0.5">Events Managed</div>
               </div>
 
               <div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-outfit">50+</div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-outfit">40+</div>
                 <div className="text-xs text-purple-200 font-medium mt-0.5">Apartment Events</div>
               </div>
 
               <div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-outfit">500+</div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-outfit">100+</div>
                 <div className="text-xs text-purple-200 font-medium mt-0.5">Vendor Partners</div>
               </div>
 

@@ -119,7 +119,8 @@ export default function Footer() {
             <ul className="space-y-2 text-xs">
               <li><Link href="/services#weddings" className="hover:text-amber-400 transition">Weddings & Celebrations</Link></li>
               <li><Link href="/expo" className="hover:text-amber-400 transition">Apartment Events & Bazaars</Link></li>
-              <li><Link href="/vendors/register" className="hover:text-amber-400 transition">Stall Vendor Booking</Link></li>
+              <li><Link href="/vendors/register" className="hover:text-amber-400 transition">Vendor Stall Booking</Link></li>
+              <li><Link href="/clients/register" className="hover:text-amber-400 transition">Client Event Registration (RWA)</Link></li>
               <li><Link href="/services#corporate" className="hover:text-amber-400 transition">Corporate & Stage Audio-Visuals</Link></li>
               <li><Link href="/accounting" className="hover:text-amber-400 transition">Accounting & GST Services</Link></li>
             </ul>

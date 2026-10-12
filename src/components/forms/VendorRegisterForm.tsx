@@ -154,6 +154,7 @@ export default function VendorRegisterForm({
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsExpanded, setTermsExpanded] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
@@ -175,8 +176,14 @@ export default function VendorRegisterForm({
 
     try {
       const selectedOption = STALL_PRICING_OPTIONS.find((s) => s.key === formData.stallType);
+      const finalCategory =
+        formData.category === "Others"
+          ? customCategory.trim() || "Others (Custom Category)"
+          : formData.category;
+
       const payload = {
         ...formData,
+        category: finalCategory,
         stallType: selectedOption?.label || formData.stallType,
       };
 
@@ -198,12 +205,13 @@ export default function VendorRegisterForm({
           contactPerson: "",
           email: "",
           phone: "",
-          category: "Apparel & Fashion",
+          category: "Apartment Gated Society Bazaars",
           stallType: "standard",
           targetEvent: "",
           city: "Chennai",
           notes: "",
         });
+        setCustomCategory("");
         setAgreedToTerms(false);
       } else {
         setStatus({
@@ -314,7 +322,24 @@ export default function VendorRegisterForm({
               <option value="Cultural Village & Pongal Melas">Cultural, Traditional Crafts & Heritage</option>
               <option value="Boutique Fashion & Lifestyle Pop-Ups">Boutique Western Fashion & Luxury Accessories</option>
               <option value="Children's Book Fairs & STEM Expos">Books, Stationery & Pickles (Low-Budget)</option>
+              <option value="Others">Others (Please specify below)</option>
             </select>
+
+            {formData.category === "Others" && (
+              <div className="mt-2.5">
+                <label className="block text-xs font-semibold text-amber-400 mb-1">
+                  Specify Your Product Category *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="e.g. Handmade Terracotta, Pet Care, Custom Fragrances, etc."
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-amber-500/60 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 text-xs shadow-inner"
+                />
+              </div>
+            )}
           </div>
 
           <div>

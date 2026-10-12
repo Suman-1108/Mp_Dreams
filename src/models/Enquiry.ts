@@ -8,6 +8,11 @@ const EnquirySchema = new Schema(
     service: { type: String, required: true, trim: true },
     message: { type: String, required: true, trim: true },
     eventTitle: { type: String, trim: true },
+    clientType: { type: String, trim: true },
+    organization: { type: String, trim: true },
+    location: { type: String, trim: true },
+    eventDate: { type: String, trim: true },
+    budget: { type: String, trim: true },
     status: {
       type: String,
       enum: ["new", "contacted", "closed"],

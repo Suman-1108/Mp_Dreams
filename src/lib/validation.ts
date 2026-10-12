@@ -15,6 +15,11 @@ export const enquirySchema = z.object({
     .min(5, "Message must be at least 5 characters")
     .max(3000),
   eventTitle: z.string().optional(),
+  clientType: z.string().optional(),
+  organization: z.string().optional(),
+  location: z.string().optional(),
+  eventDate: z.string().optional(),
+  budget: z.string().optional(),
 });
 
 export const vendorSchema = z.object({

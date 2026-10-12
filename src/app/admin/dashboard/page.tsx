@@ -20,6 +20,8 @@ interface DashboardEnquiry {
   eventDate?: string;
   location?: string;
   budget?: string;
+  organization?: string;
+  clientType?: string;
   message?: string;
   status: string;
   createdAt?: string;
@@ -525,7 +527,14 @@ export default function AdminDashboardPage() {
                   <tbody className="divide-y divide-slate-800/60">
                     {enquiries.map((e) => (
                       <tr key={e._id} className="hover:bg-slate-950/50">
-                        <td className="p-3 font-semibold text-white">{e.name}</td>
+                        <td className="p-3 font-semibold text-white">
+                          {e.name}
+                          {e.organization && (
+                            <span className="block text-[11px] text-purple-400 font-normal">
+                              {e.organization} {e.clientType ? `(${e.clientType})` : ""}
+                            </span>
+                          )}
+                        </td>
                         <td className="p-3">{e.phone}<br/><span className="text-slate-500 text-[11px]">{e.email}</span></td>
                         <td className="p-3 text-amber-400 font-medium">{e.service}</td>
                         <td className="p-3 max-w-xs truncate text-slate-400">{e.message}</td>

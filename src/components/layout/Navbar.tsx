@@ -16,7 +16,8 @@ export default function Navbar() {
     { name: "Services", href: "/services" },
     { name: "Events", fullName: "Events Calendar", href: "/events" },
     { name: "Apartment Events", href: "/expo" },
-    { name: "Vendors", fullName: "Vendor Registration", href: "/vendors/register" },
+    { name: "Vendor Register", fullName: "Vendor Registration (Stall Booking)", href: "/vendors/register" },
+    { name: "Client Register", fullName: "Client Registration (Host An Event)", href: "/clients/register" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
   ];
@@ -28,7 +29,7 @@ export default function Navbar() {
         <div className="w-full max-w-[1400px] mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2.5">
             <span className="bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0 tracking-wider">
-              APARTMENT EVENTS
+               EVENTS & SOLUTIONS
             </span>
             <span className="hidden sm:inline text-slate-200 text-xs">
               CHENNAI&apos;S PREMIER APARTMENT EVENTS, & STALL MANAGEMENT
@@ -67,7 +68,7 @@ export default function Navbar() {
                 MP DREAM <span className="text-amber-400 font-black">EVENTS</span>
               </span>
               <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-slate-400 font-semibold leading-none mt-0.5">
-                Apartment Events
+                  Events & Solutions
               </span>
             </div>
           </Link>
@@ -167,16 +168,16 @@ export default function Navbar() {
             <Link
               href="/vendors/register"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center px-4 py-2.5 rounded-full bg-purple-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-purple-600/30"
-            >
-              Book Stall Space
-            </Link>
-            <Link
-              href="/contact"
-              onClick={() => setMobileMenuOpen(false)}
               className="w-full text-center px-4 py-2.5 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-sm"
             >
-              Plan Your Event
+              Vendor Stall Register
+            </Link>
+            <Link
+              href="/clients/register"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-center px-4 py-2.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-purple-600/30"
+            >
+              Client Event Register (RWA / Hosts)
             </Link>
           </div>
         </div>

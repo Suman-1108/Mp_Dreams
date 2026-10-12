@@ -85,7 +85,7 @@ export default function PortfolioTrustSection() {
                     <Award className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-lg font-black text-white font-syne">150+</div>
+                    <div className="text-lg font-black text-white font-syne">100+</div>
                     <div className="text-[11px] text-slate-400 font-medium">Events Performed</div>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ export default function PortfolioTrustSection() {
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-lg font-black text-white font-syne">10+ Years</div>
+                    <div className="text-lg font-black text-white font-syne">5+ Years</div>
                     <div className="text-[11px] text-slate-400 font-medium">Experience</div>
                   </div>
                 </div>
