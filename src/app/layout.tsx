@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: "MP DREAM EVENTS & Solutions | Premier Event & Stall Management Chennai",
   description:
     "Chennai's premier event management company specializing in grand celebrations, luxury wedding decor, apartment flea market expos, stall bookings, and business tax accounting.",
+  icons: {
+    icon: "/images/logo-transparent.png",
+    apple: "/images/logo-transparent.png",
+  },
 };
 
 export default function RootLayout({

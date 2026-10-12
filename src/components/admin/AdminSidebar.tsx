@@ -42,7 +42,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }: { activeTab: s
       <div className="space-y-6">
         {/* Brand */}
         <div className="flex items-center space-x-3 px-2 py-2 border-b border-zinc-900 pb-4">
-          <div className="relative h-11 w-11 shrink-0">
+          <div className="relative h-11 w-11 shrink-0 drop-shadow-[0_0_10px_rgba(245,158,11,0.25)]">
             <Image
               src="/images/logo-transparent.png"
               alt="MP Dream Events"

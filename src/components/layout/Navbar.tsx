@@ -54,7 +54,7 @@ export default function Navbar() {
 
           {/* Official Brand Logo (Transparent) */}
           <Link href="/" className="flex items-center space-x-3.5 group shrink-0 select-none py-1">
-            <div className="relative h-[54px] w-[54px] sm:h-[60px] sm:w-[60px] lg:h-[64px] lg:w-[64px] group-hover:scale-105 transition-transform duration-300">
+            <div className="relative h-[56px] w-[56px] sm:h-[62px] sm:w-[62px] lg:h-[66px] lg:w-[66px] group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_14px_rgba(245,158,11,0.3)]">
               <Image
                 src="/images/logo-transparent.png"
                 alt="MP Dream Events Solutions"

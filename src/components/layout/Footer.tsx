@@ -47,7 +47,7 @@ export default function Footer() {
           {/* Col 1: Brand Info (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <Link href="/" className="flex items-center space-x-3.5 group">
-              <div className="relative h-[72px] w-[72px] sm:h-[84px] sm:w-[84px] group-hover:scale-105 transition-all duration-300 shrink-0">
+              <div className="relative h-[72px] w-[72px] sm:h-[84px] sm:w-[84px] group-hover:scale-105 transition-all duration-300 shrink-0 drop-shadow-[0_0_16px_rgba(245,158,11,0.25)]">
                 <Image
                   src="/images/logo-transparent.png"
                   alt="MP Dream Events Solutions"

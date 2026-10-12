@@ -14,7 +14,7 @@ export default function AdminLoginPage() {
         
         {/* Header */}
         <div className="text-center space-y-3">
-          <div className="relative h-20 w-20 mx-auto">
+          <div className="relative h-20 w-20 mx-auto drop-shadow-[0_0_16px_rgba(245,158,11,0.3)]">
             <Image
               src="/images/logo-transparent.png"
               alt="MP Dream Events Solutions"
