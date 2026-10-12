@@ -18,11 +18,11 @@ export const metadata: Metadata = {
     "Chennai's premier event management company specializing in grand celebrations, luxury wedding decor, apartment flea market expos, stall bookings, and business tax accounting.",
   icons: {
     icon: [
-      { url: "/images/mp-logo.png?v=2", type: "image/png" },
-      { url: "/favicon.ico?v=2", sizes: "any" },
+      { url: "/images/mp-logo.png?v=4", type: "image/png" },
+      { url: "/favicon.ico?v=4", sizes: "any" },
     ],
-    shortcut: "/images/mp-logo.png?v=2",
-    apple: "/images/mp-logo.png?v=2",
+    shortcut: "/images/mp-logo.png?v=4",
+    apple: "/images/mp-logo.png?v=4",
   },
 };
 

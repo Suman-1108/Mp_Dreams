@@ -98,7 +98,7 @@ function ProposalApprovalView({
 
   const refetchProposal = async () => {
     try {
-      const res = await fetch(`/api/proposals/${token}`);
+      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`);
       if (res.ok) {
         const data = await res.json();
         setProposal(data.proposal);
@@ -111,7 +111,7 @@ function ProposalApprovalView({
 
   useEffect(() => {
     let isMounted = true;
-    fetch(`/api/proposals/${token}`)
+    fetch(`/api/proposals/${encodeURIComponent(token)}`)
       .then((res) => {
         if (!res.ok) throw new Error("Not found");
         return res.json();
@@ -139,7 +139,7 @@ function ProposalApprovalView({
 
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/proposals/${token}`, {
+      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -170,7 +170,7 @@ function ProposalApprovalView({
 
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/proposals/${token}`, {
+      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -327,53 +327,48 @@ function ProposalApprovalView({
           </div>
 
           {/* Scope of Work & Quotation Table */}
+          {/* Scope of Work & Deliverables Table */}
           <div className="space-y-3 pt-2">
             <h2 className="text-lg font-bold text-white font-outfit print:text-black flex items-center gap-2">
               <FileText className="w-4 h-4 text-purple-400" />
-              <span>Scope of Work & Quotation Breakdown</span>
+              <span>Scope of Work & Event Deliverables</span>
             </h2>
 
             <div className="overflow-x-auto rounded-2xl border border-zinc-900 print:border-black">
               <table className="w-full text-left text-xs">
                 <thead className="bg-zinc-900/80 text-zinc-300 print:bg-gray-100 print:text-black">
                   <tr>
-                    <th className="py-3 px-4 font-bold">#</th>
-                    <th className="py-3 px-4 font-bold">Item & Deliverable</th>
+                    <th className="py-3 px-4 font-bold w-12 text-center">#</th>
+                    <th className="py-3 px-4 font-bold w-1/3">Item & Deliverable</th>
                     <th className="py-3 px-4 font-bold">Description / Technical Specification</th>
-                    <th className="py-3 px-4 font-bold text-right">Amount (₹)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-900 text-zinc-300 print:divide-gray-300 print:text-black">
                   {proposal.scopeOfWork?.map((row: ProposalScopeItem, idx: number) => (
                     <tr key={idx} className="hover:bg-zinc-900/30">
-                      <td className="py-3 px-4 font-mono text-zinc-500">{String(idx + 1).padStart(2, "0")}</td>
+                      <td className="py-3 px-4 font-mono text-zinc-500 text-center">{String(idx + 1).padStart(2, "0")}</td>
                       <td className="py-3 px-4 font-bold text-white print:text-black">{row.item}</td>
-                      <td className="py-3 px-4 text-zinc-400 print:text-gray-700 leading-relaxed max-w-md">{row.description}</td>
-                      <td className="py-3 px-4 font-extrabold text-right text-white font-outfit print:text-black">
-                        ₹{Number(row.amount).toLocaleString("en-IN")}
-                      </td>
+                      <td className="py-3 px-4 text-zinc-400 print:text-gray-700 leading-relaxed">{row.description}</td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-zinc-900/60 font-bold border-t border-zinc-800 print:bg-gray-100 print:border-black">
-                  <tr>
-                    <td colSpan={3} className="py-3.5 px-4 text-right text-white uppercase tracking-wider text-xs print:text-black">
-                      Total Agreed Event Budget:
-                    </td>
-                    <td className="py-3.5 px-4 text-right text-lg font-black text-amber-400 font-outfit print:text-black">
-                      ₹{Number(proposal.totalAmount).toLocaleString("en-IN")}
-                    </td>
-                  </tr>
-                  <tr className="text-zinc-400 text-[11px] print:text-black">
-                    <td colSpan={3} className="py-2 px-4 text-right">
-                      Advance Required to Initiate Fabrication & Vendor Procurement (50%):
-                    </td>
-                    <td className="py-2 px-4 text-right font-bold text-purple-300 print:text-black">
-                      ₹{Number(proposal.advanceRequired).toLocaleString("en-IN")}
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
+            </div>
+
+            {/* Zero Liability Notice for Apartment / Client */}
+            <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/30 flex items-center justify-between flex-wrap gap-3 text-xs text-zinc-300">
+              <div className="flex items-center space-x-2.5">
+                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+                <div>
+                  <span className="font-bold text-white block">Zero Financial Liability for Apartment Association</span>
+                  <span className="text-[11px] text-zinc-400">
+                    This document is for operational permission & society space approval only. All event setups and vendor fees are settled directly with participating vendors. Zero cost to the association.
+                  </span>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold uppercase tracking-wider text-[10px] border border-emerald-500/20 shrink-0">
+                Free Society Approval
+              </span>
             </div>
           </div>
 
@@ -382,7 +377,7 @@ function ProposalApprovalView({
             <div className="p-5 rounded-2xl bg-zinc-900/50 border border-zinc-900 space-y-2.5 print:border-black">
               <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Included in This Quotation</span>
+                <span>Complimentary Event Deliverables Included</span>
               </div>
               <ul className="space-y-2 text-xs text-zinc-300 print:text-black">
                 {proposal.inclusions?.map((inc: string, i: number) => (
@@ -413,7 +408,7 @@ function ProposalApprovalView({
           {/* Proposal Terms */}
           <div className="p-5 rounded-2xl bg-zinc-900/30 border border-zinc-900 space-y-2 text-xs print:border-black">
             <div className="font-bold text-white uppercase tracking-wider text-[11px] print:text-black">
-              Payment & Execution Terms
+              Apartment Guidelines & Execution Terms
             </div>
             <ul className="space-y-1.5 text-zinc-400 print:text-black">
               {proposal.terms?.map((t: string, i: number) => (
@@ -466,7 +461,7 @@ function ProposalApprovalView({
             <div className="pt-6 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
               <div>
                 <p className="text-xs text-zinc-400">
-                  Please review the complete scope, pricing, and terms above. Once satisfied, authorize the proposal to proceed with vendor procurement.
+                  Please review the event scope, deliverables, and apartment guidelines above. Once satisfied, authorize the proposal to grant permission for vendor stall setups.
                 </p>
               </div>
 
@@ -608,7 +603,7 @@ function ProposalApprovalView({
                     className="mt-0.5 w-4 h-4 rounded border-purple-700 bg-black text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer"
                   />
                   <span className="text-[11px] text-zinc-300 leading-tight">
-                    I confirm that I am an authorized representative of <strong>{organization || "the association"}</strong>, and by submitting this digital signature, approve the event scope of work, budget of <strong>₹{Number(proposal.totalAmount).toLocaleString("en-IN")}</strong>, and execution terms. *
+                    I confirm that I am an authorized representative of <strong>{organization || "the association"}</strong>, and by submitting this digital signature, authorize the event execution and apartment guidelines (with zero financial liability for the association). *
                   </span>
                 </label>
               </div>

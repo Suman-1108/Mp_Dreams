@@ -48,6 +48,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }: { activeTab: s
               src={brandLogo}
               alt="MP Dream Events"
               fill
+              sizes="44px"
               className="object-contain"
             />
           </div>

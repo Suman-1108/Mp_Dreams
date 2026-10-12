@@ -60,6 +60,7 @@ export default function Navbar() {
                 src={brandLogo}
                 alt="MP Dream Events Solutions"
                 fill
+                sizes="66px"
                 priority
                 className="object-contain"
               />

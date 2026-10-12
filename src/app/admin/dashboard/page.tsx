@@ -72,6 +72,8 @@ interface DashboardProposal {
   advanceRequired?: number;
   status: string;
   createdAt?: string;
+  terms?: string[];
+  deliverables?: Array<{ item: string; details: string; status?: string }>;
   approverDetails?: {
     name?: string;
     designation?: string;
@@ -105,6 +107,123 @@ export default function AdminDashboardPage() {
   });
   const [eventCreating, setEventCreating] = useState(false);
   const [eventMsg, setEventMsg] = useState("");
+
+  // New Proposal Form State
+  const [showNewProposalForm, setShowNewProposalForm] = useState(false);
+  const [newProposal, setNewProposal] = useState({
+    title: "",
+    associationName: "",
+    clientName: "",
+    token: "",
+    contactPerson: "",
+    phone: "",
+    email: "",
+    eventDate: "",
+    venue: "",
+    expectedAttendance: "1,500+ Resident Families (Approx. 4,500 Attendees)",
+    scopeOfWorkText: "Stall Canopies: 20 commercial weather-safe canopies (10x10 ft) with tables & chairs\nPower Infrastructure: Power distribution boxes, LED floodlights & silent generator backup\nAudio & Resident PA: High-clarity sound system, cordless mics & cultural program stage\nKids Carnival Zone: Bouncy castle, interactive carnival games, popcorn & candy counter\nGround Marshals: Dedicated coordination crew for crowd safety, vendor load-in & cleaning",
+    inclusionsText: "20 Commercial vendor canopies with tables, frilled covers, and lighting\nComplete electrical distribution and silent generator backup\nProfessional audio system and family DJ setup for evening cultural programs\nKids games and entertainment zone\nDedicated on-ground event management crew and cleaning team",
+    exclusionsText: "Direct vendor sales settlements (handled directly with vendors)\nResident private purchases or individual apartment catering\nSpecial municipal police permissions (handled jointly with RWA)",
+    termsText: "Stall setup will begin 12 hours prior to the event commencement with zero obstruction to resident parking.\nZero cost and zero financial liability for the Residents Welfare Association; all commercial vendor stall fees handled directly by MP Dream Events.\nStrict adherence to society quiet hours after 10:00 PM for all audio equipment.\nDedicated MP Dream Events cleaning marshals will ensure 100% waste clearance post-event.\nVendor vehicles and staff verified and security gate passes submitted to security office in advance.",
+  });
+  const [proposalCreating, setProposalCreating] = useState(false);
+  const [proposalMsg, setProposalMsg] = useState("");
+
+  const handleCreateProposal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProposalCreating(true);
+    setProposalMsg("");
+
+    try {
+      const scopeItems = newProposal.scopeOfWorkText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const parts = line.split(":");
+          return {
+            item: parts[0]?.trim() || "Event Service",
+            description: parts.slice(1).join(":").trim() || line,
+            amount: 0,
+          };
+        });
+
+      const inclusions = newProposal.inclusionsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const exclusions = newProposal.exclusionsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const terms = newProposal.termsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const slug =
+        newProposal.token.trim() ||
+        `${newProposal.associationName || newProposal.title}`
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "");
+
+      const res = await fetch("/api/proposals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newProposal.title,
+          associationName: newProposal.associationName,
+          clientName: newProposal.clientName || newProposal.associationName,
+          token: slug,
+          contactPerson: newProposal.contactPerson,
+          phone: newProposal.phone,
+          email: newProposal.email,
+          eventDate: newProposal.eventDate,
+          venue: newProposal.venue,
+          expectedAttendance: newProposal.expectedAttendance,
+          scopeOfWork: scopeItems,
+          inclusions,
+          exclusions,
+          terms,
+          totalAmount: 0,
+          advanceRequired: 0,
+          status: "pending",
+        }),
+      });
+
+      if (res.ok) {
+        setProposalMsg("Proposal created successfully! Client approval link is active.");
+        setShowNewProposalForm(false);
+        setNewProposal({
+          title: "",
+          associationName: "",
+          clientName: "",
+          token: "",
+          contactPerson: "",
+          phone: "",
+          email: "",
+          eventDate: "",
+          venue: "",
+          expectedAttendance: "1,500+ Resident Families (Approx. 4,500 Attendees)",
+          scopeOfWorkText: "Stall Canopies: 20 commercial weather-safe canopies (10x10 ft) with tables & chairs\nPower Infrastructure: Power distribution boxes, LED floodlights & silent generator backup\nAudio & Resident PA: High-clarity sound system, cordless mics & cultural program stage\nKids Carnival Zone: Bouncy castle, interactive carnival games, popcorn & candy counter\nGround Marshals: Dedicated coordination crew for crowd safety, vendor load-in & cleaning",
+          inclusionsText: "20 Commercial vendor canopies with tables, frilled covers, and lighting\nComplete electrical distribution and silent generator backup\nProfessional audio system and family DJ setup for evening cultural programs\nKids games and entertainment zone\nDedicated on-ground event management crew and cleaning team",
+          exclusionsText: "Direct vendor sales settlements (handled directly with vendors)\nResident private purchases or individual apartment catering\nSpecial municipal police permissions (handled jointly with RWA)",
+          termsText: "Stall setup will begin 12 hours prior to the event commencement with zero obstruction to resident parking.\nZero cost and zero financial liability for the Residents Welfare Association; all commercial vendor stall fees handled directly by MP Dream Events.\nStrict adherence to society quiet hours after 10:00 PM for all audio equipment.\nDedicated MP Dream Events cleaning marshals will ensure 100% waste clearance post-event.\nVendor vehicles and staff verified and security gate passes submitted to security office in advance.",
+        });
+        await fetchData();
+      } else {
+        const d = await res.json();
+        setProposalMsg(d.message || "Failed to create proposal");
+      }
+    } catch {
+      setProposalMsg("Network error creating proposal");
+    } finally {
+      setProposalCreating(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -613,19 +732,229 @@ export default function AdminDashboardPage() {
                   Apartment Association & Client Proposal Approvals
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  Manage digital proposal links, track committee sign-offs, and monitor event budget authorizations.
+                  Create custom apartment event proposals, customize terms per society, and track client permissions.
                 </p>
               </div>
 
-              <div className="flex items-center space-x-2 text-xs">
-                <span className="px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-300 font-bold">
-                  {proposals.length} Total Proposals
-                </span>
-                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
-                  {proposals.filter((p) => p.status === "approved").length} Approved
-                </span>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowNewProposalForm(!showNewProposalForm)}
+                  className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-purple-600/30"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{showNewProposalForm ? "Close Form" : "Create Apartment Proposal"}</span>
+                </button>
+
+                <div className="flex items-center space-x-2 text-xs">
+                  <span className="px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-300 font-bold">
+                    {proposals.length} Total
+                  </span>
+                  <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
+                    {proposals.filter((p) => p.status === "approved").length} Approved
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* CREATE NEW APARTMENT PROPOSAL FORM */}
+            {showNewProposalForm && (
+              <div className="bg-slate-900 p-6 sm:p-8 rounded-2xl border-2 border-purple-500/40 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <h4 className="text-base font-bold text-white font-outfit flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-purple-400" />
+                      <span>Create New Apartment Proposal (Client Approval Portal)</span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Enter society details and configure unique terms and conditions tailored for this specific apartment.
+                    </p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-950/60 text-purple-300 border border-purple-500/30">
+                    Vendor-Funded / Free for RWA
+                  </span>
+                </div>
+
+                {proposalMsg && (
+                  <div className="p-3.5 rounded-xl text-xs font-semibold bg-purple-950/40 border border-purple-500/40 text-purple-300">
+                    {proposalMsg}
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateProposal} className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">Apartment / Society Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newProposal.associationName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const autoSlug = val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+                        setNewProposal({
+                          ...newProposal,
+                          associationName: val,
+                          clientName: val,
+                          title: newProposal.title || `${val} Mega Shopping Carnival & Flea Fair 2026`,
+                          token: newProposal.token || autoSlug,
+                        });
+                      }}
+                      placeholder="e.g. Prestige Bella Vista RWA"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">Proposal Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newProposal.title}
+                      onChange={(e) => setNewProposal({ ...newProposal, title: e.target.value })}
+                      placeholder="e.g. Prestige Bella Vista Grand Flea Carnival 2026"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">Unique Proposal URL Token *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newProposal.token}
+                      onChange={(e) => setNewProposal({ ...newProposal, token: e.target.value })}
+                      placeholder="e.g. prestige-bella-vista-2026"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-purple-300 font-mono focus:outline-none focus:border-purple-500"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-1 block">
+                      Client approval link will be: /approval/{newProposal.token || "your-token"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">Event Date(s) *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newProposal.eventDate}
+                      onChange={(e) => setNewProposal({ ...newProposal, eventDate: e.target.value })}
+                      placeholder="e.g. Saturday & Sunday, 14-15 Nov 2026"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">Venue Inside Apartment *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newProposal.venue}
+                      onChange={(e) => setNewProposal({ ...newProposal, venue: e.target.value })}
+                      placeholder="e.g. Central Clubhouse Arena & Open Promenade"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">Expected Footfall / Audience</label>
+                    <input
+                      type="text"
+                      value={newProposal.expectedAttendance}
+                      onChange={(e) => setNewProposal({ ...newProposal, expectedAttendance: e.target.value })}
+                      placeholder="e.g. 1,500+ Resident Families (Approx. 4,500 Attendees)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Person</label>
+                    <input
+                      type="text"
+                      value={newProposal.contactPerson}
+                      onChange={(e) => setNewProposal({ ...newProposal, contactPerson: e.target.value })}
+                      placeholder="e.g. K. R. Narayanan (Secretary)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Phone / Email</label>
+                    <input
+                      type="text"
+                      value={newProposal.phone}
+                      onChange={(e) => setNewProposal({ ...newProposal, phone: e.target.value })}
+                      placeholder="e.g. +91 98401 23456"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-slate-300 mb-1 font-semibold">
+                      Scope of Work & Deliverables (One line per deliverable: Item: Description) *
+                    </label>
+                    <textarea
+                      rows={4}
+                      required
+                      value={newProposal.scopeOfWorkText}
+                      onChange={(e) => setNewProposal({ ...newProposal, scopeOfWorkText: e.target.value })}
+                      placeholder="Stall Canopies: 20 weather-safe canopies with tables & chairs&#10;Power Supply: Main power junction box & silent generator backup"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 font-mono text-[11px]"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-slate-300 mb-1 font-semibold">
+                      Complimentary Deliverables Included (One per line)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={newProposal.inclusionsText}
+                      onChange={(e) => setNewProposal({ ...newProposal, inclusionsText: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 text-[11px]"
+                    />
+                  </div>
+
+                  {/* CUSTOMIZABLE TERMS & CONDITIONS PER APARTMENT */}
+                  <div className="sm:col-span-2 p-4 rounded-xl bg-purple-950/20 border border-purple-500/40 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-purple-300 font-bold text-xs uppercase tracking-wider">
+                        Apartment-Specific Guidelines & Terms (Customizable for Each Society) *
+                      </label>
+                      <span className="text-[10px] text-amber-400 font-semibold">
+                        Different per apartment
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Customize quiet hours, gate entry pass regulations, cleaning responsibilities, or zero-cost clauses specifically for this apartment. Enter one term per line.
+                    </p>
+                    <textarea
+                      rows={5}
+                      required
+                      value={newProposal.termsText}
+                      onChange={(e) => setNewProposal({ ...newProposal, termsText: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 text-[11px] leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2 pt-2 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setShowNewProposalForm(false)}
+                      className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={proposalCreating}
+                      className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase tracking-wider text-xs transition shadow-lg shadow-purple-600/30"
+                    >
+                      {proposalCreating ? "Publishing Proposal..." : "Generate & Publish Proposal Link"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
 
             {/* Proposals Cards List */}
             <div className="space-y-4">
@@ -664,13 +993,17 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div className="text-left md:text-right space-y-1 shrink-0">
-                      <div className="text-xs text-slate-400">Total Budget Quotation:</div>
-                      <div className="text-xl font-black text-amber-400 font-outfit">
-                        ₹{Number(prop.totalAmount).toLocaleString("en-IN")}
+                      <span className="inline-block px-3 py-1 rounded-xl bg-purple-950/60 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-wider">
+                        Client Approval Portal
+                      </span>
+                      <div className="text-[11px] text-emerald-400 font-semibold">
+                        Zero Cost to Association (Vendor-Paid Stalls)
                       </div>
-                      <div className="text-[11px] text-purple-300">
-                        Advance (50%): ₹{Number(prop.advanceRequired).toLocaleString("en-IN")}
-                      </div>
+                      {prop.terms && (
+                        <div className="text-[10px] text-slate-400">
+                          {prop.terms.length} Custom Apartment Guidelines
+                        </div>
+                      )}
                     </div>
                   </div>
 

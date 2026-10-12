@@ -40,13 +40,14 @@ export default function VendorOpportunitiesSection() {
       subtitle: "For books & stationery, homemade pickles, kids toys & craft artisans.",
       badge: "Artisans & Small Creators",
       originalPrice: "₹5,000",
-      offerPrice: "₹3,500",
+      offerPrice: "₹3,499",
       discount: "30% OFF",
       priceSub: "/ day / stall",
       features: [
         "1 Canopy Display Table (6x3 ft)",
         "Vendor Chairs & Setup included",
         "Continuous Electricity Connection",
+        "1,000+ Resident Footfall Audience",
         "WhatsApp Notice & Resident Announcement",
         "No Hidden / Extra Facility Fee",
       ],
@@ -58,7 +59,7 @@ export default function VendorOpportunitiesSection() {
       subtitle: "For apparel & fashion, designer jewelry, gourmet foods & commercial retail.",
       badge: "Most Popular",
       originalPrice: "₹10,000",
-      offerPrice: "₹8,000",
+      offerPrice: "₹7,999",
       discount: "20% OFF",
       priceSub: "/ day / stall",
       features: [
@@ -77,17 +78,17 @@ export default function VendorOpportunitiesSection() {
       subtitle: "Automobile dealerships, test-drive promotions & corporate brand activations.",
       badge: "Automobile & Corporate",
       originalPrice: "₹13,999",
-      offerPrice: "₹10,000",
-      discount: "28% OFF",
+      offerPrice: "₹9,999",
+      discount: "29% OFF",
       priceSub: "/ vehicle showcase",
       features: [
         <span key="feat-4seater">
           4-Seater Car Display: <span className="line-through text-zinc-500">₹12,000</span>{" "}
-          <span className="text-emerald-400 font-bold">offer 10,000</span>
+          <span className="text-emerald-400 font-bold">offer 9,999</span>
         </span>,
         <span key="feat-7seater">
           7-Seater Car Display: <span className="line-through text-zinc-500">₹14,000</span>{" "}
-          <span className="text-emerald-400 font-bold">offer 12,000</span>
+          <span className="text-emerald-400 font-bold">offer 11,999</span>
         </span>,
         "Premium Branded Car: ₹15,000 – ₹30,000",
         "Central Courtyard Vehicle Placement",

@@ -19,8 +19,8 @@ import {
 export const STALL_PRICING_OPTIONS = [
   {
     key: "standard",
-    label: "Standard Commercial Stall (Starting from ₹3,500 / day)",
-    priceText: "Starting from ₹3,500 / day",
+    label: "Standard Commercial Stall (Starting from ₹3,499 / day)",
+    priceText: "Starting from ₹3,499 / day",
     details: "Apparel, designer wear, jewelry, organic foods, cosmetics & commercial retail brands.",
     facilities: "Table (6x3 ft), vendor chairs, electricity connection & LED lighting included (No extra fee).",
   },
@@ -33,15 +33,15 @@ export const STALL_PRICING_OPTIONS = [
   },
   {
     key: "car_4seater",
-    label: "4-Seater Car Promotional Display (Original ₹12,000 | Offer ₹10,000)",
-    priceText: "₹10,000 / vehicle (Offer Price)",
+    label: "4-Seater Car Promotional Display (Original ₹12,000 | Offer ₹9,999)",
+    priceText: "₹9,999 / vehicle (Offer Price)",
     details: "Automobile dealerships, compact sedans & hatchbacks test-drive showcase.",
     facilities: "Central courtyard vehicle spot, resident test-drive access rights & banner space.",
   },
   {
     key: "car_7seater",
-    label: "7-Seater Car Promotional Display (Original ₹14,000 | Offer ₹12,000)",
-    priceText: "₹12,000 / vehicle (Offer Price)",
+    label: "7-Seater Car Promotional Display (Original ₹14,000 | Offer ₹11,999)",
+    priceText: "₹11,999 / vehicle (Offer Price)",
     details: "SUVs, MPVs, family 7-seater vehicles & luxury test-drive showcase.",
     facilities: "Prime central venue placement, promotional standee space & test-drive permissions.",
   },

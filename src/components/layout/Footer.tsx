@@ -53,6 +53,7 @@ export default function Footer() {
                   src={brandLogo}
                   alt="MP Dream Events Solutions"
                   fill
+                  sizes="84px"
                   className="object-contain"
                 />
               </div>

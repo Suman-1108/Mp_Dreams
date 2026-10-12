@@ -20,6 +20,7 @@ export default function AdminLoginPage() {
               src={brandLogo}
               alt="MP Dream Events Solutions"
               fill
+              sizes="80px"
               priority
               className="object-contain"
             />
