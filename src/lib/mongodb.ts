@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  // In development/build without ENV set, allow graceful error handling
   console.warn("MONGODB_URI is not defined in environment variables.");
 }
 
@@ -31,8 +30,11 @@ export async function connectDB() {
   if (cache.conn) return cache.conn;
 
   if (!cache.promise) {
+    // Fail fast with 3000ms timeout instead of blocking for 30 seconds
     cache.promise = mongoose.connect(uri, {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 3000,
+      connectTimeoutMS: 3000,
     });
   }
 

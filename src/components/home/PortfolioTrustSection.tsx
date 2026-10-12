@@ -20,7 +20,7 @@ export default function PortfolioTrustSection() {
     },
     {
       name: "Sophia R.",
-      role: "Apartment Event & Expo Vendor",
+      role: "Apartment Event Stall Vendor",
       quote:
         "An unforgettable experience! The footfall, the stall setup, the vibe — everything was perfect for our retail brand.",
       rating: 5,
@@ -58,7 +58,7 @@ export default function PortfolioTrustSection() {
                     <span>Music & Events Creates Connections</span>
                   </div>
                   <h3 className="text-2xl font-black uppercase font-syne text-white">
-                    Memorable Apartment Events & High Impact Expos
+                    Memorable Apartment Events & Celebrations
                   </h3>
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function PortfolioTrustSection() {
                   More Than Events, It's a Movement
                 </h2>
                 <p className="text-slate-300 text-sm leading-relaxed">
-                  I'm MP Dream Events, a passionate event management team with a mission to bring people together through the power of extraordinary celebrations, high-footfall apartment events, community expos, and weddings.
+                  I'm MP Dream Events, a passionate event management team with a mission to bring people together through the power of extraordinary celebrations, high-footfall apartment events, community festivals, and weddings.
                 </p>
               </div>
 

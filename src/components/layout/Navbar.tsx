@@ -14,9 +14,9 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Services", href: "/services" },
-    { name: "Events Calendar", shortName: "Events", href: "/events" },
-    { name: "Apartment Events", shortName: "Apartment Events", href: "/expo" },
-    { name: "Vendor Registration", shortName: "Vendors", href: "/vendors/register" },
+    { name: "Events", fullName: "Events Calendar", href: "/events" },
+    { name: "Apartment Events", href: "/expo" },
+    { name: "Vendors", fullName: "Vendor Registration", href: "/vendors/register" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },
   ];
@@ -24,14 +24,18 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10 text-white shadow-xl transition-all">
       {/* Top Banner Announcement */}
-      <div className="bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 px-4 py-2 text-xs font-semibold tracking-wide text-white border-b border-white/5">
-        <div className="w-full max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
-              APARTMENT EVENTS & EXPOS
+      <div className="bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 px-4 py-1.5 text-xs font-semibold tracking-wide text-white border-b border-white/5">
+        <div className="w-full max-w-[1400px] mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-2.5">
+            <span className="bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0 tracking-wider">
+              APARTMENT EVENTS
             </span>
-            <span className="hidden sm:inline">CHENNAI&apos;S PREMIER APARTMENT EVENTS, EXPOS & STALL MANAGEMENT</span>
-            <span className="sm:hidden text-[11px]">Apartment Events & Expos Chennai</span>
+            <span className="hidden sm:inline text-slate-200 text-xs">
+              CHENNAI&apos;S PREMIER APARTMENT EVENTS, & STALL MANAGEMENT
+            </span>
+            <span className="sm:hidden text-[11px] text-slate-200">
+              Apartment Events & Celebrations Chennai
+            </span>
           </div>
           <Link
             href="/contact"
@@ -44,12 +48,12 @@ export default function Navbar() {
       </div>
 
       {/* Main Navbar */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between min-h-[74px] py-2 gap-4">
-          
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between min-h-[76px] py-2 gap-4">
+
           {/* Official Brand Logo (Transparent) */}
-          <Link href="/" className="flex items-center space-x-3 group shrink-0 select-none py-1">
-            <div className="relative h-11 w-11 sm:h-13 sm:w-13 group-hover:scale-105 transition-transform duration-300">
+          <Link href="/" className="flex items-center space-x-3.5 group shrink-0 select-none py-1">
+            <div className="relative h-[54px] w-[54px] sm:h-[60px] sm:w-[60px] lg:h-[64px] lg:w-[64px] group-hover:scale-105 transition-transform duration-300">
               <Image
                 src="/images/logo-transparent.png"
                 alt="MP Dream Events Solutions"
@@ -58,38 +62,30 @@ export default function Navbar() {
                 className="object-contain"
               />
             </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-sm sm:text-base tracking-tight text-white font-outfit leading-tight group-hover:text-amber-400 transition-colors">
+            <div className="flex flex-col justify-center">
+              <span className="font-extrabold text-base sm:text-lg lg:text-xl tracking-tight text-white font-outfit leading-tight group-hover:text-amber-400 transition-colors">
                 MP DREAM <span className="text-amber-400 font-black">EVENTS</span>
               </span>
-              <span className="text-[9px] uppercase tracking-widest text-slate-400 font-semibold leading-none">
-                Apartment Events & Expos
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-slate-400 font-semibold leading-none mt-0.5">
+                Apartment Events
               </span>
             </div>
           </Link>
 
           {/* Nav Links */}
-          <nav className="hidden xl:flex items-center space-x-1 2xl:space-x-2 font-medium text-xs 2xl:text-[13px] tracking-tight shrink-0">
+          <nav className="hidden xl:flex items-center space-x-1 lg:space-x-1.5 font-medium text-xs xl:text-[13px] tracking-tight shrink-0">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-lg whitespace-nowrap font-semibold transition duration-150 ${
-                    isActive
+                  className={`px-3 py-1.5 rounded-lg whitespace-nowrap font-semibold transition duration-150 ${isActive
                       ? "text-purple-300 bg-purple-950/80 border border-purple-500/40 font-bold shadow-sm shadow-purple-500/20"
                       : "text-slate-300 hover:text-white hover:bg-white/10"
-                  }`}
+                    }`}
                 >
-                  {link.shortName ? (
-                    <>
-                      <span className="hidden 2xl:inline">{link.name}</span>
-                      <span className="2xl:hidden">{link.shortName}</span>
-                    </>
-                  ) : (
-                    link.name
-                  )}
+                  {link.name}
                 </Link>
               );
             })}
@@ -99,7 +95,7 @@ export default function Navbar() {
           <div className="hidden xl:flex items-center space-x-3 shrink-0">
             <a
               href="tel:+917338999723"
-              className="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white flex items-center space-x-1.5 transition whitespace-nowrap rounded-lg hover:bg-white/10"
+              className="px-2.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white flex items-center space-x-1.5 transition whitespace-nowrap rounded-lg hover:bg-white/10"
             >
               <Phone className="w-3.5 h-3.5 text-purple-400 shrink-0" />
               <span className="whitespace-nowrap font-bold tracking-tight">+91 73389 99723</span>
@@ -107,7 +103,7 @@ export default function Navbar() {
 
             <Link
               href="/vendors/register"
-              className="px-4 2xl:px-5 py-2.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-purple-600/30 transition transform hover:-translate-y-0.5 whitespace-nowrap shrink-0"
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-purple-600/30 transition transform hover:-translate-y-0.5 whitespace-nowrap shrink-0"
             >
               Book Stall Space
             </Link>
@@ -150,17 +146,16 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-2.5 rounded-lg transition text-sm font-semibold ${
-                  isActive
+                className={`block px-4 py-2.5 rounded-lg transition text-sm font-semibold ${isActive
                     ? "bg-purple-950/80 text-purple-300 border border-purple-500/30 font-bold"
                     : "text-slate-300 hover:bg-white/10 hover:text-white"
-                }`}
+                  }`}
               >
-                {link.name}
+                {link.fullName || link.name}
               </Link>
             );
           })}
-          
+
           <div className="pt-4 mt-2 border-t border-white/10 flex flex-col space-y-2">
             <a
               href="tel:+917338999723"

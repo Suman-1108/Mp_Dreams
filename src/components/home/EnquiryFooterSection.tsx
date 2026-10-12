@@ -41,7 +41,7 @@ export default function EnquiryFooterSection() {
               Book MP Dream Events For Your Next Event
             </h3>
             <p className="text-slate-300 text-xs">
-              From intimate celebrations to large-scale apartment events and community expos, let's create an extraordinary experience together.
+              From intimate celebrations to large-scale apartment events and community festivals, let's create an extraordinary experience together.
             </p>
           </div>
 

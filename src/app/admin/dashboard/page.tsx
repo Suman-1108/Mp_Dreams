@@ -15,6 +15,10 @@ import {
   RefreshCw,
   Store,
   Eye,
+  Copy,
+  ExternalLink,
+  ShieldCheck,
+  FileCheck,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -24,6 +28,8 @@ export default function AdminDashboardPage() {
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   // New Event Form State
   const [newEvent, setNewEvent] = useState({
@@ -43,10 +49,11 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [enqRes, venRes, evtRes] = await Promise.all([
+      const [enqRes, venRes, evtRes, propRes] = await Promise.all([
         fetch("/api/enquiries"),
         fetch("/api/vendors"),
         fetch("/api/events?admin=true"),
+        fetch("/api/proposals"),
       ]);
 
       if (enqRes.ok) {
@@ -60,6 +67,10 @@ export default function AdminDashboardPage() {
       if (evtRes.ok) {
         const d = await evtRes.json();
         setEvents(d.events || []);
+      }
+      if (propRes.ok) {
+        const d = await propRes.json();
+        setProposals(d.proposals || []);
       }
     } catch (err) {
       console.error("Dashboard fetch error:", err);
@@ -488,6 +499,133 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* CLIENT PROPOSALS & APPROVALS TAB */}
+        {activeTab === "proposals" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800">
+              <div>
+                <h3 className="font-bold text-white text-base font-outfit">
+                  Apartment Association & Client Proposal Approvals
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Manage digital proposal links, track committee sign-offs, and monitor event budget authorizations.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2 text-xs">
+                <span className="px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-300 font-bold">
+                  {proposals.length} Total Proposals
+                </span>
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
+                  {proposals.filter((p) => p.status === "approved").length} Approved
+                </span>
+              </div>
+            </div>
+
+            {/* Proposals Cards List */}
+            <div className="space-y-4">
+              {proposals.map((prop) => (
+                <div
+                  key={prop.token}
+                  className="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 hover:border-slate-700 transition"
+                >
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-800/80 pb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                          {prop.associationName || prop.clientName}
+                        </span>
+                        {prop.status === "approved" ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Approved & Signed</span>
+                          </span>
+                        ) : prop.status === "changes_requested" ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                            Revisions Requested
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400">
+                            Pending Approval
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-base font-bold text-white font-outfit">
+                        {prop.title}
+                      </h4>
+                      <p className="text-xs text-slate-400">
+                        Date: <strong className="text-white">{prop.eventDate}</strong> • Venue: <strong className="text-white">{prop.venue}</strong>
+                      </p>
+                    </div>
+
+                    <div className="text-left md:text-right space-y-1 shrink-0">
+                      <div className="text-xs text-slate-400">Total Budget Quotation:</div>
+                      <div className="text-xl font-black text-amber-400 font-outfit">
+                        ₹{Number(prop.totalAmount).toLocaleString("en-IN")}
+                      </div>
+                      <div className="text-[11px] text-purple-300">
+                        Advance (50%): ₹{Number(prop.advanceRequired).toLocaleString("en-IN")}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Approver Details if Approved */}
+                  {prop.status === "approved" && prop.approverDetails && (
+                    <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <span className="text-emerald-400 font-bold block">
+                          Signed by: {prop.approverDetails.name} ({prop.approverDetails.designation})
+                        </span>
+                        <span className="text-slate-400 text-[11px]">
+                          {prop.approverDetails.organization} • {new Date(prop.approverDetails.approvedAt).toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                      {prop.approverDetails.comments && (
+                        <div className="text-[11px] text-slate-300 italic max-w-sm truncate">
+                          &ldquo;{prop.approverDetails.comments}&rdquo;
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
+                    <div className="flex items-center space-x-2 text-slate-400">
+                      <span className="font-mono text-[11px]">/approval/{prop.token}</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = `${window.location.origin}/approval/${prop.token}`;
+                          navigator.clipboard.writeText(url);
+                          setCopiedToken(prop.token);
+                          setTimeout(() => setCopiedToken(null), 3000);
+                        }}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>{copiedToken === prop.token ? "Copied Link!" : "Copy Link"}</span>
+                      </button>
+
+                      <a
+                        href={`/approval/${prop.token}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Open Client Portal</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

@@ -31,6 +31,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }: { activeTab: s
   const navItems = [
     { id: "overview", label: "Dashboard Overview", icon: LayoutDashboard },
     { id: "events", label: "Event & Expo Management", icon: Calendar },
+    { id: "proposals", label: "Client Approvals & Proposals", icon: ShieldCheck },
     { id: "vendors", label: "Vendor Applications", icon: Store },
     { id: "enquiries", label: "Customer Enquiries", icon: MessageSquare },
     { id: "bookings", label: "Stall Reservations", icon: Building2 },
