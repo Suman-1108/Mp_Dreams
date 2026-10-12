@@ -39,7 +39,9 @@ export default function VendorOpportunitiesSection() {
       name: "Low-Budget Stall",
       subtitle: "For books & stationery, homemade pickles, kids toys & craft artisans.",
       badge: "Artisans & Small Creators",
-      price: "₹2,000 – ₹3,000",
+      originalPrice: "₹5,000",
+      offerPrice: "₹3,500",
+      discount: "30% OFF",
       priceSub: "/ day / stall",
       features: [
         "1 Canopy Display Table (6x3 ft)",
@@ -56,7 +58,9 @@ export default function VendorOpportunitiesSection() {
       name: "Standard Stall",
       subtitle: "For apparel & fashion, designer jewelry, gourmet foods & commercial retail.",
       badge: "Most Popular",
-      price: "Starting from ₹3,500",
+      originalPrice: "₹10,000",
+      offerPrice: "₹8,000",
+      discount: "20% OFF",
       priceSub: "/ day / stall",
       features: [
         "Prime Walkway / Clubhouse Slot",
@@ -73,7 +77,9 @@ export default function VendorOpportunitiesSection() {
       name: "Car Promotional Displays",
       subtitle: "Automobile dealerships, test-drive promotions & corporate brand activations.",
       badge: "Automobile & Corporate",
-      price: "From ₹8,000",
+      originalPrice: "₹13,999",
+      offerPrice: "₹10,000",
+      discount: "28% OFF",
       priceSub: "/ vehicle showcase",
       features: [
         "4-Seater Car Display: ₹8,000",
@@ -231,12 +237,28 @@ export default function VendorOpportunitiesSection() {
                     </p>
                   </div>
 
-                  {/* Price Block */}
-                  <div className="pt-4 pb-2 border-t border-zinc-900 my-4">
-                    <div className="text-2xl sm:text-3xl font-extrabold text-white font-outfit tracking-tight">
-                      {plan.price}
+                  {/* Price Block with Struck-out Original Price & Offer Price */}
+                  <div className="pt-4 pb-2 border-t border-zinc-900 my-4 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Original:</span>
+                      <span className="text-base sm:text-lg font-bold text-zinc-500 line-through decoration-rose-500/80 decoration-2 font-outfit">
+                        {plan.originalPrice}
+                      </span>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">
+                        {plan.discount}
+                      </span>
                     </div>
-                    <div className="text-[11px] text-zinc-500 font-medium mt-0.5">
+
+                    <div className="flex items-baseline gap-2">
+                      <div className="text-2xl sm:text-3xl font-extrabold text-white font-outfit tracking-tight">
+                        {plan.offerPrice}
+                      </div>
+                      <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider px-2 py-0.5 rounded bg-purple-950/50 border border-purple-500/20">
+                        Offer Price
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-zinc-500 font-medium">
                       {plan.priceSub}
                     </div>
                   </div>
