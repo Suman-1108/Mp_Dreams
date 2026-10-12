@@ -57,7 +57,7 @@ export default function Footer() {
                 />
               </div>
               <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-white font-outfit">
-                MP DREAM EVENTS <span className="text-amber-400">& Solutions</span>
+                MP DREAM EVENTS <span className="text-amber-400">SOLUTIONS</span>
               </span>
             </Link>
 

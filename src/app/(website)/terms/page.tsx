@@ -32,7 +32,7 @@ export default function TermsAndConditionsPage() {
       id: "04",
       title: "Stall Allocation & Pricing",
       content:
-        "Stall locations will be allocated by the event organizer. Standard stalls start from ₹3,500/day, low-budget categories (books, stationery, pickles, toys) at ₹2,000–₹3,000/day, and car promotional displays from ₹8,000–₹20,000. Changes to layout may be made if necessary.",
+        "Stall locations will be allocated by the event organizer. Standard stalls start from ₹3,500/day, low-budget categories (books, stationery, pickles, toys) at ₹2,000–₹3,000/day, and car promotional displays from ₹10,000–₹30,000 (starting from ₹10,000). Changes to layout may be made if necessary.",
     },
     {
       id: "05",

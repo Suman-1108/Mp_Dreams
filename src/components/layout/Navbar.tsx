@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Phone, ArrowRight, Menu, X } from "lucide-react";
 import brandLogo from "@/assets/logo.png";
+import { Phone, ArrowRight, Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -66,10 +66,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col justify-center">
               <span className="font-extrabold text-base sm:text-lg lg:text-xl tracking-tight text-white font-outfit leading-tight group-hover:text-amber-400 transition-colors">
-                MP DREAM <span className="text-amber-400 font-black">EVENTS</span>
-              </span>
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-slate-400 font-semibold leading-none mt-0.5">
-                  Events & Solutions
+                MP DREAM EVENTS <span className="text-amber-400 font-black"> <br></br>SOLUTIONS</span>
               </span>
             </div>
           </Link>

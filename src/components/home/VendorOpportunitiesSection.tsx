@@ -47,7 +47,6 @@ export default function VendorOpportunitiesSection() {
         "1 Canopy Display Table (6x3 ft)",
         "Vendor Chairs & Setup included",
         "Continuous Electricity Connection",
-        "1,000+ Resident Footfall Audience",
         "WhatsApp Notice & Resident Announcement",
         "No Hidden / Extra Facility Fee",
       ],
@@ -82,8 +81,14 @@ export default function VendorOpportunitiesSection() {
       discount: "28% OFF",
       priceSub: "/ vehicle showcase",
       features: [
-        "4-Seater Car Display: ₹12,000 offer 10,000",
-        "7-Seater Car Display: ₹14,000 offer 12,000",
+        <span key="feat-4seater">
+          4-Seater Car Display: <span className="line-through text-zinc-500">₹12,000</span>{" "}
+          <span className="text-emerald-400 font-bold">offer 10,000</span>
+        </span>,
+        <span key="feat-7seater">
+          7-Seater Car Display: <span className="line-through text-zinc-500">₹14,000</span>{" "}
+          <span className="text-emerald-400 font-bold">offer 12,000</span>
+        </span>,
         "Premium Branded Car: ₹15,000 – ₹30,000",
         "Central Courtyard Vehicle Placement",
         "Resident Test-Drive Access Rights",
@@ -265,28 +270,15 @@ export default function VendorOpportunitiesSection() {
 
                   {/* Features List */}
                   <ul className="space-y-2.5 mb-6">
-                    {plan.features.map((feat, fIdx) => {
-                      const offerMatch = feat.match(/^(.*?:\s*)(₹[\d,]+)\s+offer\s+(₹?[\d,]+)$/i);
-                      return (
-                        <li key={fIdx} className="flex items-start gap-2.5 text-xs text-zinc-300">
-                          {/* Purple Themed Circular Check Icon */}
-                          <div className="w-4 h-4 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center shrink-0 mt-0.5">
-                            <Check className="w-2.5 h-2.5 text-purple-400 stroke-[3]" />
-                          </div>
-                          {offerMatch ? (
-                            <span className="leading-tight flex flex-wrap items-center gap-1.5">
-                              <span>{offerMatch[1]}</span>
-                              <span className="line-through text-zinc-500 decoration-rose-500/70 font-semibold">{offerMatch[2]}</span>
-                              <span className="text-amber-400 font-bold bg-amber-950/40 border border-amber-500/30 px-1.5 py-0.5 rounded text-[11px]">
-                                offer {offerMatch[3].startsWith("₹") ? offerMatch[3] : `₹${offerMatch[3]}`}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="leading-tight">{feat}</span>
-                          )}
-                        </li>
-                      );
-                    })}
+                    {plan.features.map((feat, fIdx) => (
+                      <li key={fIdx} className="flex items-start gap-2.5 text-xs text-zinc-300">
+                        {/* Purple Themed Circular Check Icon */}
+                        <div className="w-4 h-4 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-2.5 h-2.5 text-purple-400 stroke-[3]" />
+                        </div>
+                        <span className="leading-tight">{feat}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
 

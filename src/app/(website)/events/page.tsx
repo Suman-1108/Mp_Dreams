@@ -71,7 +71,7 @@ const TWELVE_EVENT_TYPES = [
     title: "Automobile & Car Promotional Expos",
     category: "automobile",
     icon: Car,
-    pricing: "₹8,000 – ₹20,000 / vehicle",
+    pricing: "₹10,000 – ₹30,000 / vehicle",
     audience: "High-income Car Buyers & IT Execs",
     desc: "Prime vehicle courtyard displays inside high-density apartment communities and tech parks with test-drive lead generation.",
     popularItems: "4-seater sedans, 7-seater SUVs, electric vehicles & luxury cars",
