@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Building2, Store, Users, CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react";
+import { Building2, ArrowRight, ShieldCheck } from "lucide-react";
 import VendorOpportunitiesSection from "@/components/home/VendorOpportunitiesSection";
 
 export const metadata: Metadata = {

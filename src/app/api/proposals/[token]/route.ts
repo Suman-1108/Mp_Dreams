@@ -20,7 +20,7 @@ export async function GET(
     }
 
     return NextResponse.json({ proposal });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error fetching proposal:", err);
     return NextResponse.json(
       { message: "Failed to fetch proposal details" },
@@ -104,10 +104,11 @@ export async function POST(
     }
 
     return NextResponse.json({ message: "Invalid action" }, { status: 400 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error processing proposal action:", err);
+    const message = err instanceof Error ? err.message : "Failed to process proposal action";
     return NextResponse.json(
-      { message: err?.message || "Failed to process proposal action" },
+      { message },
       { status: 500 }
     );
   }

@@ -71,10 +71,10 @@ export default function PortfolioTrustSection() {
                   ABOUT MP DREAM EVENTS
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-black uppercase font-syne text-white leading-tight">
-                  More Than Events, It's a Movement
+                  More Than Events, It&apos;s a Movement
                 </h2>
                 <p className="text-slate-300 text-sm leading-relaxed">
-                  I'm MP Dream Events, a passionate event management team with a mission to bring people together through the power of extraordinary celebrations, high-footfall apartment events, community festivals, and weddings.
+                  I&apos;m MP Dream Events, a passionate event management team with a mission to bring people together through the power of extraordinary celebrations, high-footfall apartment events, community festivals, and weddings.
                 </p>
               </div>
 

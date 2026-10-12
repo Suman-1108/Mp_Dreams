@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Sparkles, Image as ImageIcon, Camera } from "lucide-react";
+import { Camera } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Event & Expo Photo Gallery | MP Dream Events Chennai",

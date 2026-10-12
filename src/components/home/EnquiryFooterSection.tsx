@@ -35,13 +35,13 @@ export default function EnquiryFooterSection() {
           <div className="space-y-2 max-w-xl">
             <div className="text-amber-400 font-bold text-xs tracking-widest uppercase flex items-center space-x-2">
               <Zap className="w-4 h-4 text-amber-400 animate-bounce" />
-              <span>LET'S MAKE YOUR EVENT UNFORGETTABLE</span>
+              <span>LET&apos;S MAKE YOUR EVENT UNFORGETTABLE</span>
             </div>
             <h3 className="text-2xl sm:text-3xl font-black uppercase font-syne text-white">
               Book MP Dream Events For Your Next Event
             </h3>
             <p className="text-slate-300 text-xs">
-              From intimate celebrations to large-scale apartment events and community festivals, let's create an extraordinary experience together.
+              From intimate celebrations to large-scale apartment events and community festivals, let&apos;s create an extraordinary experience together.
             </p>
           </div>
 

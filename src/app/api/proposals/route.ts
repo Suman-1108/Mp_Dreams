@@ -169,10 +169,11 @@ export async function POST(req: Request) {
       { message: "Proposal created successfully", proposal: newProposal },
       { status: 201 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error creating proposal:", err);
+    const message = err instanceof Error ? err.message : "Failed to create proposal";
     return NextResponse.json(
-      { message: err?.message || "Failed to create proposal" },
+      { message },
       { status: 500 }
     );
   }

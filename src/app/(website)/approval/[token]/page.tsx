@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, Suspense } from "react";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -11,29 +11,73 @@ import {
   Calendar,
   MapPin,
   Users,
-  Download,
   Printer,
-  CreditCard,
-  Send,
   X,
   Phone,
   Mail,
   Building2,
-  Zap,
-  ArrowRight,
   Sparkles,
-  HelpCircle,
-  MessageSquare,
 } from "lucide-react";
 
-export default function ClientProposalApprovalPage({
+interface ProposalScopeItem {
+  item: string;
+  description: string;
+  amount: number;
+}
+
+interface ProposalApproval {
+  approverName: string;
+  designation: string;
+  organization: string;
+  approvedAt: string;
+  notes?: string;
+}
+
+interface ProposalData {
+  _id: string;
+  token: string;
+  title: string;
+  clientName: string;
+  associationName?: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  eventType?: string;
+  venue: string;
+  eventDate: string;
+  expectedAttendance?: string;
+  residentUnits?: number;
+  expectedFootfall?: number;
+  totalEstimate?: number;
+  totalAmount?: number;
+  advanceRequired?: number;
+  version?: number;
+  status: "draft" | "sent" | "approved" | "changes_requested" | "declined" | "pending" | "rejected";
+  createdAt?: string;
+  scopeOfWork?: ProposalScopeItem[];
+  inclusions?: string[];
+  exclusions?: string[];
+  terms?: string[];
+  termsAndConditions?: string[];
+  approvalHistory?: ProposalApproval[];
+  approverDetails?: {
+    name?: string;
+    designation?: string;
+    organization?: string;
+    approvedAt?: string | Date;
+    comments?: string;
+  };
+  paymentStatus?: string;
+}
+
+function ProposalApprovalView({
   params,
 }: {
   params: Promise<{ token: string }>;
 }) {
   const { token } = use(params);
 
-  const [proposal, setProposal] = useState<any>(null);
+  const [proposal, setProposal] = useState<ProposalData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,26 +96,41 @@ export default function ClientProposalApprovalPage({
   // Change request input
   const [changeNotes, setChangeNotes] = useState("");
 
-  const fetchProposal = async () => {
-    setLoading(true);
+  const refetchProposal = async () => {
     try {
       const res = await fetch(`/api/proposals/${token}`);
       if (res.ok) {
         const data = await res.json();
         setProposal(data.proposal);
         setOrganization(data.proposal.associationName || data.proposal.clientName || "");
-      } else {
-        setError("Proposal link not found or access token expired. Please contact MP Dream Events.");
       }
     } catch {
-      setError("Unable to connect to server. Please check your internet connection.");
-    } finally {
-      setLoading(false);
+      // keep existing state
     }
   };
 
   useEffect(() => {
-    fetchProposal();
+    let isMounted = true;
+    fetch(`/api/proposals/${token}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Not found");
+        return res.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        setProposal(data.proposal);
+        setOrganization(data.proposal.associationName || data.proposal.clientName || "");
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setError("Proposal link not found or access token expired. Please contact MP Dream Events.");
+        setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [token]);
 
   const handleApprove = async (e: React.FormEvent) => {
@@ -94,7 +153,7 @@ export default function ClientProposalApprovalPage({
 
       if (res.ok) {
         setShowApproveModal(false);
-        await fetchProposal();
+        await refetchProposal();
       } else {
         alert("Failed to submit approval. Please try again.");
       }
@@ -122,7 +181,7 @@ export default function ClientProposalApprovalPage({
 
       if (res.ok) {
         setShowChangesModal(false);
-        await fetchProposal();
+        await refetchProposal();
       } else {
         alert("Failed to submit change request.");
       }
@@ -229,7 +288,7 @@ export default function ClientProposalApprovalPage({
 
             <div className="text-left md:text-right space-y-1 text-xs text-zinc-400 print:text-black shrink-0">
               <div>Proposal Reference: <strong className="font-mono text-white print:text-black">{proposal.token}</strong></div>
-              <div>Date Issued: <strong className="text-white print:text-black">{new Date(proposal.createdAt || Date.now()).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</strong></div>
+              <div>Date Issued: <strong className="text-white print:text-black">{proposal.createdAt ? new Date(proposal.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Active"}</strong></div>
               <div>Version: <strong className="text-white print:text-black">v{proposal.version || 1}.0</strong></div>
             </div>
           </div>
@@ -285,7 +344,7 @@ export default function ClientProposalApprovalPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-900 text-zinc-300 print:divide-gray-300 print:text-black">
-                  {proposal.scopeOfWork?.map((row: any, idx: number) => (
+                  {proposal.scopeOfWork?.map((row: ProposalScopeItem, idx: number) => (
                     <tr key={idx} className="hover:bg-zinc-900/30">
                       <td className="py-3 px-4 font-mono text-zinc-500">{String(idx + 1).padStart(2, "0")}</td>
                       <td className="py-3 px-4 font-bold text-white print:text-black">{row.item}</td>
@@ -387,7 +446,9 @@ export default function ClientProposalApprovalPage({
                 <div>
                   <span className="text-zinc-500 block">Approval Timestamp:</span>
                   <strong className="text-white print:text-black">
-                    {new Date(proposal.approverDetails?.approvedAt).toLocaleString("en-IN")}
+                    {proposal.approverDetails?.approvedAt
+                      ? new Date(proposal.approverDetails.approvedAt).toLocaleString("en-IN")
+                      : "Verified"}
                   </strong>
                 </div>
               </div>
@@ -630,5 +691,24 @@ export default function ClientProposalApprovalPage({
       )}
 
     </div>
+  );
+}
+
+export default function ClientProposalApprovalPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 space-y-4">
+          <div className="w-12 h-12 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
+          <p className="text-zinc-400 text-sm">Loading Client Proposal & Quotation...</p>
+        </div>
+      }
+    >
+      <ProposalApprovalView params={params} />
+    </Suspense>
   );
 }

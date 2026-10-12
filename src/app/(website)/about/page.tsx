@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Building2, Award, Users, Target, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Award, Target, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About Us | MP Dream Events & Solutions Chennai",
@@ -44,7 +44,7 @@ export default function AboutPage() {
             </div>
             <h2 className="text-2xl font-bold text-white font-syne">Our Vision</h2>
             <p className="text-slate-300 text-sm leading-relaxed">
-              To become Tamil Nadu's most trusted multi-service corporate brand for event planning, community exhibition management, and comprehensive business growth advisory.
+              To become Tamil Nadu&apos;s most trusted multi-service corporate brand for event planning, community exhibition management, and comprehensive business growth advisory.
             </p>
           </div>
         </div>

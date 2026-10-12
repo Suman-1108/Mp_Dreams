@@ -240,23 +240,28 @@ export default function UpcomingEventsSection({
   const [visibleLimit, setVisibleLimit] = useState<number>(showAllInitially ? 12 : 8);
 
   useEffect(() => {
-    // 1. Instant 0ms load from localStorage cache
-    try {
-      const cached = localStorage.getItem("mp_events_cache_v2");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length >= 12) {
-          setAllEvents(parsed);
+    let isMounted = true;
+
+    // 1. Load from localStorage cache
+    const timer = setTimeout(() => {
+      try {
+        const cached = localStorage.getItem("mp_events_cache_v2");
+        if (cached && isMounted) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length >= 12) {
+            setAllEvents(parsed);
+          }
         }
+      } catch (err) {
+        console.warn("Could not read local cache:", err);
       }
-    } catch (err) {
-      console.warn("Could not read local cache:", err);
-    }
+    }, 0);
 
     // 2. Fetch fresh events in background and update cache
     fetch("/api/events")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
+        if (!isMounted) return;
         if (data?.events && Array.isArray(data.events) && data.events.length > 0) {
           setAllEvents(data.events);
           try {
@@ -265,6 +270,11 @@ export default function UpcomingEventsSection({
         }
       })
       .catch(() => {});
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   // Filter events based on active category and search
@@ -398,7 +408,7 @@ export default function UpcomingEventsSection({
         {displayedEvents.length === 0 ? (
           <div className="py-16 text-center rounded-3xl bg-zinc-950 border border-zinc-900 p-8 space-y-3">
             <p className="text-base text-zinc-300 font-semibold">No scheduled events match your current filter.</p>
-            <p className="text-xs text-zinc-500">Try selecting "All Events" or clearing your search keywords.</p>
+            <p className="text-xs text-zinc-500">Try selecting &quot;All Events&quot; or clearing your search keywords.</p>
             <button
               onClick={() => {
                 setSelectedCategory("all");

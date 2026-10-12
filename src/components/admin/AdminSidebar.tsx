@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Calendar,
-  Users,
   MessageSquare,
   Building2,
   Image as ImageIcon,

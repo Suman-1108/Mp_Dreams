@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { Calculator, CheckCircle2, ShieldCheck, FileText, ArrowRight } from "lucide-react";
+import { FileText } from "lucide-react";
 import EnquiryForm from "@/components/forms/EnquiryForm";
 
 export const metadata: Metadata = {

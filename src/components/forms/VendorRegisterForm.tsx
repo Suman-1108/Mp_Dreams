@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Send,
   CheckCircle2,
   AlertCircle,
   Loader2,
@@ -14,9 +13,7 @@ import {
   ChevronDown,
   ChevronUp,
   Zap,
-  Car,
   Receipt,
-  Info,
 } from "lucide-react";
 
 export const STALL_PRICING_OPTIONS = [

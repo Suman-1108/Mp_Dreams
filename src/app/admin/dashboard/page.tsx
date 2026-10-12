@@ -3,32 +3,90 @@
 import { useState, useEffect } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import {
-  Calendar,
-  Users,
-  MessageSquare,
   Building2,
   Plus,
   CheckCircle2,
-  Clock,
-  Tag,
-  Loader2,
   RefreshCw,
-  Store,
-  Eye,
   Copy,
   ExternalLink,
-  ShieldCheck,
-  FileCheck,
 } from "lucide-react";
+
+interface DashboardEnquiry {
+  _id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  service: string;
+  eventDate?: string;
+  location?: string;
+  budget?: string;
+  message?: string;
+  status: string;
+  createdAt?: string;
+}
+
+interface DashboardVendor {
+  _id: string;
+  brandName?: string;
+  businessName?: string;
+  contactName?: string;
+  contactPerson?: string;
+  phone: string;
+  email: string;
+  category: string;
+  stallRequirement?: string;
+  targetLocations?: string[];
+  targetEvent?: string;
+  status: string;
+  createdAt?: string;
+}
+
+interface DashboardEvent {
+  _id: string;
+  title: string;
+  slug: string;
+  category: string;
+  location: string;
+  startDate?: string;
+  stallPrice?: number;
+  totalStalls?: number;
+  availableStalls?: number;
+  bookedStalls?: number;
+  published: boolean;
+}
+
+interface DashboardProposal {
+  _id: string;
+  token: string;
+  clientName: string;
+  associationName?: string;
+  societyName?: string;
+  title: string;
+  venue?: string;
+  eventDate?: string;
+  eventDates?: string;
+  totalEstimate?: number;
+  totalAmount?: number;
+  advanceRequired?: number;
+  status: string;
+  createdAt?: string;
+  approverDetails?: {
+    name?: string;
+    designation?: string;
+    organization?: string;
+    approvedAt?: string | Date;
+    comments?: string;
+  };
+}
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
 
-  const [enquiries, setEnquiries] = useState<any[]>([]);
-  const [vendors, setVendors] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [proposals, setProposals] = useState<any[]>([]);
+  const [enquiries, setEnquiries] = useState<DashboardEnquiry[]>([]);
+  const [vendors, setVendors] = useState<DashboardVendor[]>([]);
+  const [events, setEvents] = useState<DashboardEvent[]>([]);
+  const [proposals, setProposals] = useState<DashboardProposal[]>([]);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   // New Event Form State
@@ -80,7 +138,42 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    fetchData();
+    let isMounted = true;
+    const loadInitialData = async () => {
+      try {
+        const [enqRes, venRes, evtRes, propRes] = await Promise.all([
+          fetch("/api/enquiries"),
+          fetch("/api/vendors"),
+          fetch("/api/events?admin=true"),
+          fetch("/api/proposals"),
+        ]);
+        if (!isMounted) return;
+        if (enqRes.ok) {
+          const d = await enqRes.json();
+          setEnquiries(d.enquiries || []);
+        }
+        if (venRes.ok) {
+          const d = await venRes.json();
+          setVendors(d.vendors || []);
+        }
+        if (evtRes.ok) {
+          const d = await evtRes.json();
+          setEvents(d.events || []);
+        }
+        if (propRes.ok) {
+          const d = await propRes.json();
+          setProposals(d.proposals || []);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    loadInitialData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const updateEnquiryStatus = async (id: string, status: string) => {
@@ -580,7 +673,7 @@ export default function AdminDashboardPage() {
                           Signed by: {prop.approverDetails.name} ({prop.approverDetails.designation})
                         </span>
                         <span className="text-slate-400 text-[11px]">
-                          {prop.approverDetails.organization} • {new Date(prop.approverDetails.approvedAt).toLocaleString("en-IN")}
+                          {prop.approverDetails.organization} • {prop.approverDetails.approvedAt ? new Date(prop.approverDetails.approvedAt).toLocaleString("en-IN") : "Verified"}
                         </span>
                       </div>
                       {prop.approverDetails.comments && (
