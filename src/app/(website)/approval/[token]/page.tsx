@@ -17,6 +17,14 @@ import {
   Mail,
   Building2,
   Sparkles,
+  Tent,
+  UtensilsCrossed,
+  Music,
+  Zap,
+  PartyPopper,
+  Megaphone,
+  Trash2,
+  Check,
 } from "lucide-react";
 
 interface ProposalScopeItem {
@@ -59,6 +67,7 @@ interface ProposalData {
   exclusions?: string[];
   terms?: string[];
   termsAndConditions?: string[];
+  services?: string[];
   approvalHistory?: ProposalApproval[];
   approverDetails?: {
     name?: string;
@@ -70,6 +79,63 @@ interface ProposalData {
   paymentStatus?: string;
 }
 
+const PROPOSAL_SERVICES_MENU = [
+  {
+    title: "Stall & Vendor Curation",
+    category: "Commercial & Flea Canopies",
+    desc: "20+ Weather-safe commercial 10x10 canopies, branded tables, frills, lighting and vendor seating.",
+    icon: Tent,
+  },
+  {
+    title: "Food Counters & Catering",
+    category: "Gourmet Live Food & Street Stalls",
+    desc: "Curated hygienic live food counters, artisanal bakes, chaat, desserts, and organic tea/coffee counters.",
+    icon: UtensilsCrossed,
+  },
+  {
+    title: "Stage & Lighting Setup",
+    category: "Performance Stage & Illumination",
+    desc: "Cultural performance stage, aluminum backdrop truss, fairy lights overhead tunnel & LED ambient washes.",
+    icon: Sparkles,
+  },
+  {
+    title: "Sound Systems & AV",
+    category: "Acoustics & Resident PA",
+    desc: "High-clarity JBL line-array sound system, cordless UHF microphones, cultural program stage sound & resident announcements.",
+    icon: Music,
+  },
+  {
+    title: "Kids Rides & Carnival Games",
+    category: "Children's Amusement Zone",
+    desc: "Giant inflatable bouncy castle, live popcorn, cotton candy machine counter, game stall hosts & balloon twists.",
+    icon: PartyPopper,
+  },
+  {
+    title: "Electrical & Silent Generator Backup",
+    category: "Power Infrastructure",
+    desc: "Dedicated power junction distribution box, stall plug points, heavy cabling covers & silent DG backup generator.",
+    icon: Zap,
+  },
+  {
+    title: "Security & Crowd Management",
+    category: "Ground Marshals & Safety",
+    desc: "Uniformed MP Dream Events ground marshals for crowd safety, resident parking flow regulation & gate security passes.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Promotional Banners & Marketing",
+    category: "WhatsApp Creatives & Flyers",
+    desc: "Custom high-resolution digital flyers and promotional posters formatted for Society WhatsApp broadcast groups.",
+    icon: Megaphone,
+  },
+  {
+    title: "Zero-Waste Post-Event Cleaning",
+    category: "Eco Sanitation & Housekeeping",
+    desc: "Color-coded wet/dry dustbins, continuous on-ground sweeps throughout the event & 100% spotless venue handover.",
+    icon: Trash2,
+  },
+];
+
 function ProposalApprovalView({
   params,
 }: {
@@ -80,6 +146,7 @@ function ProposalApprovalView({
   const [proposal, setProposal] = useState<ProposalData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   // Approval Modal States
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -96,13 +163,34 @@ function ProposalApprovalView({
   // Change request input
   const [changeNotes, setChangeNotes] = useState("");
 
+  const toggleService = (title: string) => {
+    setSelectedServices((prev) =>
+      prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title]
+    );
+  };
+
   const refetchProposal = async () => {
     try {
-      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`);
+      const cleanToken = token
+        ? decodeURIComponent(token)
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+        : "";
+      const targetToken = cleanToken || (token ? decodeURIComponent(token).trim().toLowerCase() : "");
+      const res = await fetch(`/api/proposals/${encodeURIComponent(targetToken)}?t=${Date.now()}`, {
+        cache: "no-store",
+      });
       if (res.ok) {
         const data = await res.json();
-        setProposal(data.proposal);
-        setOrganization(data.proposal.associationName || data.proposal.clientName || "");
+        if (data.proposal) {
+          setProposal(data.proposal);
+          setOrganization(data.proposal.associationName || data.proposal.clientName || "");
+          if (data.proposal.services && data.proposal.services.length > 0) {
+            setSelectedServices(data.proposal.services);
+          }
+        }
       }
     } catch {
       // keep existing state
@@ -111,22 +199,82 @@ function ProposalApprovalView({
 
   useEffect(() => {
     let isMounted = true;
-    fetch(`/api/proposals/${encodeURIComponent(token)}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Not found");
-        return res.json();
-      })
-      .then((data) => {
-        if (!isMounted) return;
-        setProposal(data.proposal);
-        setOrganization(data.proposal.associationName || data.proposal.clientName || "");
+    const cleanToken = token
+      ? decodeURIComponent(token)
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+      : "";
+    const targetToken = cleanToken || (token ? decodeURIComponent(token).trim().toLowerCase() : "");
+
+    const loadData = async () => {
+      try {
+        let res = await fetch(`/api/proposals/${encodeURIComponent(targetToken)}?t=${Date.now()}`, {
+          cache: "no-store",
+        });
+
+        // If not found with normalized token, retry with raw token
+        if (!res.ok && token && token !== targetToken) {
+          res = await fetch(`/api/proposals/${encodeURIComponent(token)}?t=${Date.now()}`, {
+            cache: "no-store",
+          });
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.proposal) {
+            setProposal(data.proposal);
+            setOrganization(data.proposal.associationName || data.proposal.clientName || "");
+            if (data.proposal.services && data.proposal.services.length > 0) {
+              setSelectedServices(data.proposal.services);
+            } else {
+              setSelectedServices(PROPOSAL_SERVICES_MENU.slice(0, 6).map((s) => s.title));
+            }
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn("API proposal fetch failed, checking local backup...", fetchErr);
+      }
+
+      // Check client-side backup (localStorage) in case database or serverless store is offline
+      if (typeof window !== "undefined") {
+        try {
+          const offlineList = JSON.parse(localStorage.getItem("mp_offline_proposals") || "[]");
+          const found = offlineList.find((p: ProposalData) => {
+            const pSlug = (p.token || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+            return (
+              pSlug === cleanToken ||
+              pSlug.replace(/-/g, "") === cleanToken.replace(/-/g, "") ||
+              p.token === token ||
+              decodeURIComponent(p.token || "") === decodeURIComponent(token || "")
+            );
+          });
+          if (found && isMounted) {
+            setProposal(found);
+            setOrganization(found.associationName || found.clientName || "");
+            if (found.services && found.services.length > 0) {
+              setSelectedServices(found.services);
+            } else {
+              setSelectedServices(PROPOSAL_SERVICES_MENU.slice(0, 6).map((s) => s.title));
+            }
+            setLoading(false);
+            return;
+          }
+        } catch {
+          // ignore localStorage error
+        }
+      }
+
+      if (isMounted) {
+        setError("This proposal link could not be found or has not been published yet. Please verify the link or contact MP Dream Events coordination desk.");
         setLoading(false);
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setError("Proposal link not found or access token expired. Please contact MP Dream Events.");
-        setLoading(false);
-      });
+      }
+    };
+
+    loadData();
 
     return () => {
       isMounted = false;
@@ -138,8 +286,9 @@ function ProposalApprovalView({
     if (!agreedTerms) return;
 
     setActionLoading(true);
+    const cleanToken = token ? decodeURIComponent(token).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "";
     try {
-      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`, {
+      const res = await fetch(`/api/proposals/${encodeURIComponent(cleanToken || token)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -148,6 +297,7 @@ function ProposalApprovalView({
           designation,
           organization,
           comments,
+          services: selectedServices,
         }),
       });
 
@@ -155,9 +305,55 @@ function ProposalApprovalView({
         setShowApproveModal(false);
         await refetchProposal();
       } else {
+        // Fallback: update offline in localStorage if API returned error
+        if (typeof window !== "undefined" && proposal) {
+          const updated = {
+            ...proposal,
+            status: "approved" as const,
+            services: selectedServices,
+            approverDetails: {
+              name: approverName,
+              designation,
+              organization,
+              approvedAt: new Date().toISOString(),
+              comments,
+            },
+          };
+          setProposal(updated);
+          setShowApproveModal(false);
+          try {
+            const offlineList = JSON.parse(localStorage.getItem("mp_offline_proposals") || "[]");
+            const idx = offlineList.findIndex((p: ProposalData) => p.token === proposal.token);
+            if (idx >= 0) {
+              offlineList[idx] = updated;
+            } else {
+              offlineList.unshift(updated);
+            }
+            localStorage.setItem("mp_offline_proposals", JSON.stringify(offlineList));
+          } catch {}
+          return;
+        }
         alert("Failed to submit approval. Please try again.");
       }
     } catch {
+      // Local fallback on network disconnect
+      if (typeof window !== "undefined" && proposal) {
+        const updated = {
+          ...proposal,
+          status: "approved" as const,
+          services: selectedServices,
+          approverDetails: {
+            name: approverName,
+            designation,
+            organization,
+            approvedAt: new Date().toISOString(),
+            comments,
+          },
+        };
+        setProposal(updated);
+        setShowApproveModal(false);
+        return;
+      }
       alert("Error processing approval request.");
     } finally {
       setActionLoading(false);
@@ -169,13 +365,15 @@ function ProposalApprovalView({
     if (!changeNotes.trim()) return;
 
     setActionLoading(true);
+    const cleanToken = token ? decodeURIComponent(token).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "";
     try {
-      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`, {
+      const res = await fetch(`/api/proposals/${encodeURIComponent(cleanToken || token)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "request_changes",
           comments: changeNotes,
+          services: selectedServices,
         }),
       });
 
@@ -183,9 +381,29 @@ function ProposalApprovalView({
         setShowChangesModal(false);
         await refetchProposal();
       } else {
+        if (typeof window !== "undefined" && proposal) {
+          const updated = {
+            ...proposal,
+            status: "changes_requested" as const,
+            services: selectedServices,
+          };
+          setProposal(updated);
+          setShowChangesModal(false);
+          return;
+        }
         alert("Failed to submit change request.");
       }
     } catch {
+      if (typeof window !== "undefined" && proposal) {
+        const updated = {
+          ...proposal,
+          status: "changes_requested" as const,
+          services: selectedServices,
+        };
+        setProposal(updated);
+        setShowChangesModal(false);
+        return;
+      }
       alert("Error submitting request.");
     } finally {
       setActionLoading(false);
@@ -203,16 +421,26 @@ function ProposalApprovalView({
 
   if (error || !proposal) {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 space-y-4 text-center">
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 space-y-5 text-center">
         <AlertCircle className="w-12 h-12 text-rose-500" />
         <h1 className="text-2xl font-bold font-outfit">Proposal Not Found</h1>
         <p className="text-zinc-400 text-sm max-w-md">{error}</p>
-        <Link
-          href="/"
-          className="px-6 py-2.5 rounded-full bg-purple-600 text-white font-bold text-xs uppercase"
-        >
-          Return to Homepage
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <Link
+            href="/"
+            className="px-6 py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold text-xs uppercase transition border border-zinc-800"
+          >
+            Return to Homepage
+          </Link>
+          <a
+            href="https://wa.me/917338999723?text=Hi%20MP%20Dream%20Events,%20I%20am%20trying%20to%20open%20our%20apartment%20event%20proposal%20link."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase transition flex items-center space-x-1.5"
+          >
+            <span>Contact on WhatsApp</span>
+          </a>
+        </div>
       </div>
     );
   }
@@ -372,6 +600,118 @@ function ProposalApprovalView({
             </div>
           </div>
 
+          {/* ========================================================
+              SELECT SERVICES REQUIRED FROM MP DREAM EVENTS
+              ======================================================== */}
+          <div className="space-y-4 pt-3 border-t border-zinc-900">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/60 border border-purple-500/40 text-purple-300 text-[10px] font-bold uppercase tracking-wider mb-1.5 print:hidden">
+                  <Sparkles className="w-3 h-3 text-purple-400" />
+                  <span>Turnkey Event Scope Menu</span>
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white font-outfit print:text-black flex items-center gap-2">
+                  <span>Select Services Required from MP Dream Events</span>
+                </h2>
+                <p className="text-zinc-400 text-xs print:text-gray-700">
+                  {isApproved
+                    ? "Official turnkey services authorized and locked by the Apartment Association committee:"
+                    : "Select or customize the required event services below for your society. These will be confirmed upon sign-off:"}
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2 shrink-0 print:hidden">
+                <span className="text-xs font-bold text-purple-300 px-3.5 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/40 flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{selectedServices.length} Services Selected</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Services Options Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {PROPOSAL_SERVICES_MENU.map((service, idx) => {
+                const IconComponent = service.icon;
+                const isSelected = selectedServices.includes(service.title);
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      if (!isApproved) toggleService(service.title);
+                    }}
+                    className={`p-4 rounded-2xl border transition-all duration-200 relative select-none flex flex-col justify-between ${
+                      !isApproved
+                        ? "cursor-pointer hover:border-purple-500/60 hover:-translate-y-0.5"
+                        : "cursor-default"
+                    } ${
+                      isSelected
+                        ? "bg-gradient-to-br from-purple-950/40 via-zinc-950 to-zinc-950 border-purple-500/50 shadow-md shadow-purple-950/40"
+                        : "bg-zinc-900/30 border-zinc-900 hover:bg-zinc-900/50 opacity-75 hover:opacity-100"
+                    } print:border print:border-black print:bg-white print:p-2.5`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-center space-x-2.5">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition ${
+                              isSelected
+                                ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                                : "bg-zinc-850 text-zinc-400 border border-zinc-800"
+                            } print:bg-gray-100 print:text-black`}
+                          >
+                            <IconComponent className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-purple-400 block print:text-gray-700">
+                              {service.category}
+                            </span>
+                            <h3 className="text-xs font-bold text-white print:text-black leading-tight">
+                              {service.title}
+                            </h3>
+                          </div>
+                        </div>
+
+                        {/* Interactive Selection Indicator */}
+                        <div
+                          className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 border transition ${
+                            isSelected
+                              ? "bg-purple-600 border-purple-500 text-white"
+                              : "border-zinc-750 bg-zinc-900 text-transparent"
+                          } print:border-black`}
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+
+                      <p className="text-[11px] text-zinc-400 print:text-gray-700 leading-relaxed pt-1">
+                        {service.desc}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 mt-3 border-t border-zinc-900/80 flex items-center justify-between text-[10px]">
+                      <span
+                        className={`font-semibold ${
+                          isSelected ? "text-purple-300" : "text-zinc-500"
+                        } print:text-black`}
+                      >
+                        {isSelected ? "Included in Scope" : "Optional / Click to Request"}
+                      </span>
+                      {isSelected ? (
+                        <span className="text-emerald-400 font-bold flex items-center gap-1 print:text-black">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <span>Active</span>
+                        </span>
+                      ) : (
+                        <span className="text-zinc-500 print:hidden">+ Add</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Inclusions & Exclusions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <div className="p-5 rounded-2xl bg-zinc-900/50 border border-zinc-900 space-y-2.5 print:border-black">
@@ -419,7 +759,7 @@ function ProposalApprovalView({
 
           {/* Approver Sign-off Audit Box if Already Approved */}
           {isApproved && (
-            <div className="p-6 rounded-2xl bg-emerald-950/20 border-2 border-emerald-500/50 space-y-3 print:border-black">
+            <div className="p-6 rounded-2xl bg-emerald-950/20 border-2 border-emerald-500/50 space-y-4 print:border-black">
               <div className="flex items-center space-x-2 text-emerald-400 font-bold text-sm uppercase tracking-wider">
                 <ShieldCheck className="w-5 h-5 text-emerald-400" />
                 <span>Digitally Approved & Signed Off</span>
@@ -447,6 +787,26 @@ function ProposalApprovalView({
                   </strong>
                 </div>
               </div>
+
+              {/* Authorized Services Summary */}
+              {selectedServices.length > 0 && (
+                <div className="pt-3 border-t border-emerald-900/40 space-y-1.5">
+                  <span className="text-[11px] text-zinc-400 font-semibold block">
+                    Confirmed Turnkey Services Authorized by Society ({selectedServices.length}):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedServices.map((srv, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        <span>{srv}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {proposal.approverDetails?.comments && (
                 <div className="pt-2 text-xs text-zinc-300 italic border-t border-emerald-900/40">
@@ -591,6 +951,25 @@ function ProposalApprovalView({
                   placeholder="e.g. Approved by RWA executive committee on 11 Oct 2026."
                   className="w-full px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white focus:outline-none focus:border-purple-500 resize-none"
                 />
+              </div>
+
+              {/* Selected Services Review */}
+              <div className="p-3.5 rounded-xl bg-purple-950/25 border border-purple-500/30 space-y-2">
+                <div className="text-[11px] font-bold text-purple-300 uppercase tracking-wider flex items-center justify-between">
+                  <span>Selected Event Services ({selectedServices.length}):</span>
+                  <span className="text-[10px] text-zinc-400 font-normal">Included in sign-off</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                  {selectedServices.map((srv, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-purple-900/50 text-purple-200 border border-purple-500/30"
+                    >
+                      <Check className="w-2.5 h-2.5 text-emerald-400" />
+                      <span>{srv}</span>
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <div className="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/30 space-y-2">

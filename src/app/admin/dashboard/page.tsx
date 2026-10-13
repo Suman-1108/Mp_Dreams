@@ -9,7 +9,9 @@ import {
   RefreshCw,
   Copy,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
+import { AVAILABLE_SERVICES_MENU, normalizeToken } from "@/lib/sampleProposals";
 
 interface DashboardEnquiry {
   _id: string;
@@ -73,6 +75,7 @@ interface DashboardProposal {
   status: string;
   createdAt?: string;
   terms?: string[];
+  services?: string[];
   deliverables?: Array<{ item: string; details: string; status?: string }>;
   approverDetails?: {
     name?: string;
@@ -80,6 +83,14 @@ interface DashboardProposal {
     organization?: string;
     approvedAt?: string | Date;
     comments?: string;
+  };
+}
+
+function getOfflineProposalFallback(payload: Record<string, unknown>) {
+  return {
+    ...payload,
+    _id: `offline-${Date.now()}`,
+    createdAt: new Date().toISOString(),
   };
 }
 
@@ -92,6 +103,24 @@ export default function AdminDashboardPage() {
   const [events, setEvents] = useState<DashboardEvent[]>([]);
   const [proposals, setProposals] = useState<DashboardProposal[]>([]);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [createdProposalLink, setCreatedProposalLink] = useState<string | null>(null);
+
+  const [proposalServices, setProposalServices] = useState<string[]>([
+    "Stall & Vendor Curation",
+    "Stage & Lighting Setup",
+    "Sound Systems & AV",
+    "Kids Rides & Carnival Games",
+    "Security & Crowd Management",
+    "Electrical & Silent Generator Backup",
+  ]);
+
+  const toggleProposalService = (service: string) => {
+    setProposalServices((prev) =>
+      prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]
+    );
+  };
 
   // New Event Form State
   const [newEvent, setNewEvent] = useState({
@@ -163,39 +192,56 @@ export default function AdminDashboardPage() {
         .map((l) => l.trim())
         .filter(Boolean);
 
-      const slug =
-        newProposal.token.trim() ||
-        `${newProposal.associationName || newProposal.title}`
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)+/g, "");
+      const rawSlug = newProposal.token.trim() || `${newProposal.associationName || newProposal.title}`;
+      const slug = rawSlug
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      const payload = {
+        title: newProposal.title,
+        associationName: newProposal.associationName,
+        clientName: newProposal.clientName || newProposal.associationName,
+        token: slug,
+        contactPerson: newProposal.contactPerson,
+        phone: newProposal.phone,
+        email: newProposal.email,
+        eventDate: newProposal.eventDate,
+        venue: newProposal.venue,
+        expectedAttendance: newProposal.expectedAttendance,
+        scopeOfWork: scopeItems,
+        inclusions,
+        exclusions,
+        terms,
+        services: proposalServices,
+        totalAmount: 0,
+        advanceRequired: 0,
+        status: "pending",
+      };
 
       const res = await fetch("/api/proposals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newProposal.title,
-          associationName: newProposal.associationName,
-          clientName: newProposal.clientName || newProposal.associationName,
-          token: slug,
-          contactPerson: newProposal.contactPerson,
-          phone: newProposal.phone,
-          email: newProposal.email,
-          eventDate: newProposal.eventDate,
-          venue: newProposal.venue,
-          expectedAttendance: newProposal.expectedAttendance,
-          scopeOfWork: scopeItems,
-          inclusions,
-          exclusions,
-          terms,
-          totalAmount: 0,
-          advanceRequired: 0,
-          status: "pending",
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        setProposalMsg("Proposal created successfully! Client approval link is active.");
+        const data = await res.json();
+        const createdProp = data.proposal || getOfflineProposalFallback(payload);
+        const activeLink = data.link || `/approval/${slug}`;
+        setCreatedProposalLink(activeLink);
+
+        // Cache created proposal in browser storage for instant availability
+        if (typeof window !== "undefined") {
+          try {
+            const offlineList = JSON.parse(localStorage.getItem("mp_offline_proposals") || "[]");
+            const filtered = offlineList.filter((p: DashboardProposal) => normalizeToken(p.token) !== slug);
+            filtered.unshift(createdProp);
+            localStorage.setItem("mp_offline_proposals", JSON.stringify(filtered));
+          } catch {}
+        }
+
+        setProposalMsg(`Proposal created successfully! Client approval link is active: ${activeLink}`);
         setShowNewProposalForm(false);
         setNewProposal({
           title: "",
@@ -225,14 +271,51 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const safeCopy = (text: string, tokenKey: string = "new-created") => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopiedToken(tokenKey);
+          setTimeout(() => setCopiedToken(null), 3000);
+        }).catch(() => {
+          fallbackCopy(text, tokenKey);
+        });
+      } else {
+        fallbackCopy(text, tokenKey);
+      }
+    } catch {
+      fallbackCopy(text, tokenKey);
+    }
+  };
+
+  const fallbackCopy = (text: string, tokenKey: string) => {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopiedToken(tokenKey);
+      setTimeout(() => setCopiedToken(null), 3000);
+    } catch (e) {
+      console.warn("Copy fallback failed:", e);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
+    setRefreshing(true);
     try {
+      const now = Date.now();
       const [enqRes, venRes, evtRes, propRes] = await Promise.all([
-        fetch("/api/enquiries"),
-        fetch("/api/vendors"),
-        fetch("/api/events?admin=true"),
-        fetch("/api/proposals"),
+        fetch(`/api/enquiries?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/vendors?t=${now}`, { cache: "no-store" }),
+        fetch(`/api/events?admin=true&t=${now}`, { cache: "no-store" }),
+        fetch(`/api/proposals?t=${now}`, { cache: "no-store" }),
       ]);
 
       if (enqRes.ok) {
@@ -249,52 +332,29 @@ export default function AdminDashboardPage() {
       }
       if (propRes.ok) {
         const d = await propRes.json();
-        setProposals(d.proposals || []);
+        let list = d.proposals || [];
+        if (typeof window !== "undefined") {
+          try {
+            const offline = JSON.parse(localStorage.getItem("mp_offline_proposals") || "[]");
+            const existingTokens = new Set(list.map((p: DashboardProposal) => normalizeToken(p.token)));
+            const extra = offline.filter((p: DashboardProposal) => !existingTokens.has(normalizeToken(p.token)));
+            list = [...extra, ...list];
+          } catch {}
+        }
+        setProposals(list);
       }
+      const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      setLastRefreshedAt(timeStr);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    let isMounted = true;
-    const loadInitialData = async () => {
-      try {
-        const [enqRes, venRes, evtRes, propRes] = await Promise.all([
-          fetch("/api/enquiries"),
-          fetch("/api/vendors"),
-          fetch("/api/events?admin=true"),
-          fetch("/api/proposals"),
-        ]);
-        if (!isMounted) return;
-        if (enqRes.ok) {
-          const d = await enqRes.json();
-          setEnquiries(d.enquiries || []);
-        }
-        if (venRes.ok) {
-          const d = await venRes.json();
-          setVendors(d.vendors || []);
-        }
-        if (evtRes.ok) {
-          const d = await evtRes.json();
-          setEvents(d.events || []);
-        }
-        if (propRes.ok) {
-          const d = await propRes.json();
-          setProposals(d.proposals || []);
-        }
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-    loadInitialData();
-    return () => {
-      isMounted = false;
-    };
+    fetchData();
   }, []);
 
   const updateEnquiryStatus = async (id: string, status: string) => {
@@ -379,14 +439,21 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <button
-            onClick={fetchData}
-            disabled={loading}
-            className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs font-semibold text-slate-300 transition"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-amber-400" : ""}`} />
-            <span>Refresh Data</span>
-          </button>
+          <div className="flex items-center gap-3">
+            {lastRefreshedAt && (
+              <span className="text-[11px] text-slate-400 hidden sm:inline-block">
+                Last updated: <strong className="text-slate-300 font-mono">{lastRefreshedAt}</strong>
+              </span>
+            )}
+            <button
+              onClick={fetchData}
+              disabled={loading || refreshing}
+              className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs font-semibold text-slate-300 transition hover:border-slate-700"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing || loading ? "animate-spin text-amber-400" : "text-slate-400"}`} />
+              <span>{refreshing ? "Refreshing..." : "Refresh Data"}</span>
+            </button>
+          </div>
         </div>
 
         {/* OVERVIEW TAB */}
@@ -739,7 +806,21 @@ export default function AdminDashboardPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowNewProposalForm(!showNewProposalForm)}
+                  onClick={fetchData}
+                  disabled={loading || refreshing}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-amber-400" : ""}`} />
+                  <span>{refreshing ? "Refreshing..." : "Refresh Proposals"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewProposalForm(!showNewProposalForm);
+                    setProposalMsg("");
+                    setCreatedProposalLink(null);
+                  }}
                   className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-purple-600/30"
                 >
                   <Plus className="w-4 h-4" />
@@ -756,6 +837,44 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* Persistent Created / Active Proposal Banner */}
+            {proposalMsg && (
+              <div className="p-4 rounded-2xl text-xs font-semibold bg-emerald-950/60 border-2 border-emerald-500/50 text-emerald-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="block font-bold text-white text-sm">Proposal Successfully Created & Active!</span>
+                    <span className="text-emerald-300 text-xs">{proposalMsg}</span>
+                  </div>
+                </div>
+
+                {createdProposalLink && (
+                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto pt-2 sm:pt-0">
+                    <a
+                      href={createdProposalLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-lg shadow-purple-600/30"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Proposal Link ↗</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const full = `${window.location.origin}${createdProposalLink}`;
+                        safeCopy(full, "new-created");
+                      }}
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{copiedToken === "new-created" ? "Copied!" : "Copy Link"}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* CREATE NEW APARTMENT PROPOSAL FORM */}
             {showNewProposalForm && (
@@ -795,11 +914,11 @@ export default function AdminDashboardPage() {
                           ...newProposal,
                           associationName: val,
                           clientName: val,
-                          title: newProposal.title || `${val} Mega Shopping Carnival & Flea Fair 2026`,
-                          token: newProposal.token || autoSlug,
+                          title: newProposal.title && newProposal.title !== `${newProposal.associationName} Mega Shopping Carnival & Flea Fair 2026` ? newProposal.title : `${val} Mega Shopping Carnival & Flea Fair 2026`,
+                          token: autoSlug,
                         });
                       }}
-                      placeholder="e.g. Prestige Bella Vista RWA"
+                      placeholder="e.g. TVS Emerald Peninsula Apartment Association"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
                     />
                   </div>
@@ -811,23 +930,27 @@ export default function AdminDashboardPage() {
                       required
                       value={newProposal.title}
                       onChange={(e) => setNewProposal({ ...newProposal, title: e.target.value })}
-                      placeholder="e.g. Prestige Bella Vista Grand Flea Carnival 2026"
+                      placeholder="e.g. TVS Emerald Peninsula Grand Shopping Carnival 2026"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold">Unique Proposal URL Token *</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-slate-300 font-semibold">Unique Proposal URL Token</label>
+                      <span className="text-[10px] text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30">
+                        Auto-Generated
+                      </span>
+                    </div>
                     <input
                       type="text"
-                      required
+                      readOnly
                       value={newProposal.token}
-                      onChange={(e) => setNewProposal({ ...newProposal, token: e.target.value })}
-                      placeholder="e.g. prestige-bella-vista-2026"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-purple-300 font-mono focus:outline-none focus:border-purple-500"
+                      placeholder="Auto-generated from society name (e.g. tvs-emerald-peninsula-apartment-association)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-800 text-purple-300 font-mono focus:outline-none cursor-default select-all"
                     />
-                    <span className="text-[10px] text-slate-500 mt-1 block">
-                      Client approval link will be: /approval/{newProposal.token || "your-token"}
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Client approval link will be: <strong className="text-purple-400 font-mono">/approval/{newProposal.token || "auto-generated-token"}</strong>
                     </span>
                   </div>
 
@@ -878,12 +1001,23 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Phone / Email</label>
+                    <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Phone</label>
                     <input
                       type="text"
                       value={newProposal.phone}
                       onChange={(e) => setNewProposal({ ...newProposal, phone: e.target.value })}
                       placeholder="e.g. +91 98401 23456"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Email</label>
+                    <input
+                      type="email"
+                      value={newProposal.email}
+                      onChange={(e) => setNewProposal({ ...newProposal, email: e.target.value })}
+                      placeholder="e.g. rwa.secretary@gmail.com"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
                     />
                   </div>
@@ -912,6 +1046,50 @@ export default function AdminDashboardPage() {
                       onChange={(e) => setNewProposal({ ...newProposal, inclusionsText: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 text-[11px]"
                     />
+                  </div>
+
+                  {/* SELECT SERVICES REQUIRED FROM MP DREAM EVENTS */}
+                  <div className="sm:col-span-2 space-y-2.5 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-purple-300 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Select Services Required from MP Dream Events:</span>
+                      </label>
+                      <span className="text-[10px] text-purple-400 font-semibold px-2 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/30">
+                        {proposalServices.length} Services Selected
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Select all turnkey event services included for this society&apos;s proposal:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
+                      {AVAILABLE_SERVICES_MENU.map((srv, idx) => {
+                        const isChecked = proposalServices.includes(srv);
+                        return (
+                          <button
+                            type="button"
+                            key={idx}
+                            onClick={() => toggleProposalService(srv)}
+                            className={`p-2.5 rounded-xl border text-left text-xs font-medium transition flex items-center space-x-2.5 ${
+                              isChecked
+                                ? "bg-purple-950/60 border-purple-500/60 text-purple-200 shadow-sm"
+                                : "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700"
+                            }`}
+                          >
+                            <div
+                              className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+                                isChecked
+                                  ? "bg-purple-600 border-purple-500 text-white"
+                                  : "border-slate-700 bg-slate-800"
+                              }`}
+                            >
+                              {isChecked && <CheckCircle2 className="w-3 h-3 text-white" />}
+                            </div>
+                            <span className="truncate">{srv}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* CUSTOMIZABLE TERMS & CONDITIONS PER APARTMENT */}
@@ -1007,6 +1185,21 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
+                  {/* Included Services Tags */}
+                  {prop.services && prop.services.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-semibold text-slate-400">Services Included:</span>
+                      {prop.services.map((srv, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[10px] px-2 py-0.5 rounded-md bg-purple-950/60 text-purple-300 border border-purple-500/20"
+                        >
+                          {srv}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Approver Details if Approved */}
                   {prop.status === "approved" && prop.approverDetails && (
                     <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1036,10 +1229,8 @@ export default function AdminDashboardPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          const url = `${window.location.origin}/approval/${prop.token}`;
-                          navigator.clipboard.writeText(url);
-                          setCopiedToken(prop.token);
-                          setTimeout(() => setCopiedToken(null), 3000);
+                          const url = `${window.location.origin}/approval/${encodeURIComponent(prop.token)}`;
+                          safeCopy(url, prop.token);
                         }}
                         className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition"
                       >
@@ -1048,7 +1239,7 @@ export default function AdminDashboardPage() {
                       </button>
 
                       <a
-                        href={`/approval/${prop.token}`}
+                        href={`/approval/${encodeURIComponent(prop.token)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition"

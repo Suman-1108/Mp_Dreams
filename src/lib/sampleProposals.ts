@@ -7,7 +7,7 @@ export interface ProposalItem {
   contactPerson: string;
   email: string;
   phone: string;
-  eventType: string;
+  eventType?: string;
   eventDate: string;
   venue: string;
   expectedAttendance: string;
@@ -21,6 +21,7 @@ export interface ProposalItem {
   inclusions: string[];
   exclusions: string[];
   terms: string[];
+  services?: string[];
   status: "pending" | "approved" | "changes_requested" | "rejected";
   approverDetails?: {
     name?: string;
@@ -31,6 +32,7 @@ export interface ProposalItem {
   };
   paymentStatus: "pending" | "advance_paid" | "fully_paid";
   version: number;
+  aliases?: string[];
   revisionHistory?: {
     action: string;
     performedBy: string;
@@ -41,9 +43,28 @@ export interface ProposalItem {
   updatedAt?: string | Date;
 }
 
+export const AVAILABLE_SERVICES_MENU = [
+  "Stall & Vendor Curation",
+  "Stage & Lighting Setup",
+  "Sound Systems & AV",
+  "Food Counters & Catering",
+  "Kids Rides & Carnival Games",
+  "Security & Crowd Management",
+  "Promotional Banners & Marketing",
+  "Event Accounting & GST Support",
+  "Electrical & Silent Generator Backup",
+  "Zero-Waste Post-Event Cleaning",
+];
+
 export const initialSampleProposals: ProposalItem[] = [
   {
     token: "omr-prestige-bella-vista-2026",
+    aliases: [
+      "omr-prestige-bella-vista-2026",
+      "prestige-bella-vista",
+      "prestige-bella-vista-rwa",
+      "pbv-rwa-chennai",
+    ],
     title: "OMR Prestige Bella Vista Mega Apartment Shopping Expo & Carnival",
     clientName: "Prestige Bella Vista Residents Welfare Association",
     associationName: "PBV-RWA Chennai",
@@ -56,6 +77,16 @@ export const initialSampleProposals: ProposalItem[] = [
     expectedAttendance: "2,000+ Resident Families (Approx. 6,500 Attendees)",
     totalAmount: 185000,
     advanceRequired: 92500,
+    services: [
+      "Stall & Vendor Curation",
+      "Stage & Lighting Setup",
+      "Sound Systems & AV",
+      "Kids Rides & Carnival Games",
+      "Security & Crowd Management",
+      "Electrical & Silent Generator Backup",
+      "Promotional Banners & Marketing",
+      "Zero-Waste Post-Event Cleaning",
+    ],
     scopeOfWork: [
       {
         item: "Stall Fabrication & Canopy Setup",
@@ -117,6 +148,12 @@ export const initialSampleProposals: ProposalItem[] = [
   },
   {
     token: "hiranandani-upscale-fest-2026",
+    aliases: [
+      "hiranandani-upscale-fest-2026",
+      "hiranandani-upscale",
+      "hiranandani-rwa-navalur",
+      "hiranandani-navalur",
+    ],
     title: "Hiranandani Upscale Diwali Food & Artisan Flea Fair",
     clientName: "House of Hiranandani Community Management Committee",
     associationName: "Hiranandani RWA Navalur",
@@ -129,6 +166,14 @@ export const initialSampleProposals: ProposalItem[] = [
     expectedAttendance: "1,500+ Resident Families",
     totalAmount: 125000,
     advanceRequired: 62500,
+    services: [
+      "Stall & Vendor Curation",
+      "Food Counters & Catering",
+      "Stage & Lighting Setup",
+      "Sound Systems & AV",
+      "Promotional Banners & Marketing",
+      "Zero-Waste Post-Event Cleaning",
+    ],
     scopeOfWork: [
       {
         item: "Food & Artisan Canopy Stalls",
@@ -187,6 +232,95 @@ export const initialSampleProposals: ProposalItem[] = [
       },
     ],
   },
+  {
+    token: "tvs-emerald-peninsula-apartment-association",
+    aliases: [
+      "tvs-emerald-peninsula-apartment-association",
+      "mp-peninsula-tvs-2026",
+      "mp-%20peninsula-tvs-2026",
+      "mp-peninsula-tvs",
+      "tvs-emerald-peninsula",
+      "tvs-emerald-peninsula-rwa",
+    ],
+    title: "TVS Emerald Peninsula Grand Apartment Lifestyle & Food Carnival 2026",
+    clientName: "TVS Emerald Peninsula Apartment Association",
+    associationName: "TVS Emerald Peninsula Apartment Association",
+    contactPerson: "Executive Committee / Association Secretary",
+    email: "peninsula.rwa@gmail.com",
+    phone: "+91 73389 99723",
+    eventType: "Gated Apartment Festival & Pop-up Flea Expo",
+    eventDate: "Saturday & Sunday, 21-22 November 2026",
+    venue: "Central Podium Arena & Clubhouse Lawns, Manapakkam, Chennai",
+    expectedAttendance: "800+ Resident Families (Approx. 2,800 Attendees)",
+    totalAmount: 140000,
+    advanceRequired: 70000,
+    services: [
+      "Stall & Vendor Curation",
+      "Stage & Lighting Setup",
+      "Sound Systems & AV",
+      "Kids Rides & Carnival Games",
+      "Electrical & Silent Generator Backup",
+      "Security & Crowd Management",
+      "Zero-Waste Post-Event Cleaning",
+    ],
+    scopeOfWork: [
+      {
+        item: "Commercial Pop-Up Canopies & Stalls",
+        description: "20 weatherproof outdoor canopies (10x10 ft) with tables, frilled covers, and vendor chairs.",
+        amount: 52000,
+      },
+      {
+        item: "Electrical Infrastructure & Lighting Setup",
+        description: "Central power distribution junction box, warm LED ambiance floodlights, and silent generator backup.",
+        amount: 28000,
+      },
+      {
+        item: "Audio Equipment & Evening Music Atmosphere",
+        description: "JBL high-clarity sound system, cordless microphones for announcements, and family DJ entertainment.",
+        amount: 30000,
+      },
+      {
+        item: "Kids Entertainment & Fun Carnival Activities",
+        description: "Bouncy castle, live popcorn & cotton candy machines, interactive games host, and art activity zone.",
+        amount: 20000,
+      },
+      {
+        item: "On-Ground Management & Cleanliness Crew",
+        description: "Dedicated MP Dream Events marshals for crowd safety, vendor loading, and zero-waste post-event cleanup.",
+        amount: 10000,
+      },
+    ],
+    inclusions: [
+      "20 Premium commercial vendor canopies equipped with tables, lighting, and power outlets.",
+      "Complete electrical distribution box and silent diesel generator backup.",
+      "Professional sound system, announcement microphones, and family entertainment DJ.",
+      "Kids carnival games, bouncy castle, complimentary popcorn, and cotton candy.",
+      "Dedicated on-ground operations marshals and 100% waste clearance crew.",
+      "Zero cost and zero financial liability for the Residents Welfare Association.",
+    ],
+    exclusions: [
+      "Individual vendor retail transactions (settled directly with vendors).",
+      "Private resident catering or exclusive apartment clubhouse bookings.",
+    ],
+    terms: [
+      "Stall setup begins 12 hours prior to the event commencement with zero obstruction to resident parking or pathways.",
+      "Zero financial liability for TVS Emerald Peninsula RWA; all commercial vendor stall fees handled by MP Dream Events.",
+      "Strict compliance with society quiet hours post 10:00 PM for all audio equipment.",
+      "Dedicated MP Dream Events cleaning marshals will ensure 100% waste clearance post-event.",
+      "Vendor vehicles and staff verified with security gate passes provided in advance.",
+    ],
+    status: "pending",
+    paymentStatus: "pending",
+    version: 1,
+    revisionHistory: [
+      {
+        action: "Proposal Generated",
+        performedBy: "MP Dream Events Executive Team",
+        timestamp: new Date("2026-10-12T10:00:00Z"),
+        notes: "Official proposal generated for TVS Emerald Peninsula RWA digital review & approval.",
+      },
+    ],
+  },
 ];
 
 declare global {
@@ -198,33 +332,107 @@ if (!globalThis.inMemoryProposalsStore) {
 }
 
 export function normalizeToken(token: string): string {
+  if (!token) return "";
   try {
     return decodeURIComponent(token)
       .trim()
       .toLowerCase()
-      .replace(/[\s_]+/g, "-");
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   } catch {
-    return token.trim().toLowerCase().replace(/[\s_]+/g, "-");
+    return token
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 }
 
+export function proposalMatchesToken(p: ProposalItem, norm: string, stripped: string, rawLower: string): boolean {
+  const pNorm = normalizeToken(p.token);
+  if (pNorm === norm || pNorm.replace(/-/g, "") === stripped || p.token.toLowerCase() === rawLower) {
+    return true;
+  }
+  // Check aliases
+  if (p.aliases && p.aliases.some((a) => {
+    const aNorm = normalizeToken(a);
+    return aNorm === norm || aNorm.replace(/-/g, "") === stripped || a.toLowerCase() === rawLower;
+  })) {
+    return true;
+  }
+  // Check associationName
+  const pAssoc = normalizeToken(p.associationName || "");
+  if (pAssoc && (pAssoc === norm || norm.includes(pAssoc) || pAssoc.includes(norm))) {
+    return true;
+  }
+  // Check clientName
+  const pClient = normalizeToken(p.clientName || "");
+  if (pClient && (pClient === norm || norm.includes(pClient) || pClient.includes(norm))) {
+    return true;
+  }
+  // Check title
+  const pTitle = normalizeToken(p.title || "");
+  if (pTitle && (pTitle === norm || norm.includes(pTitle) || pTitle.includes(norm))) {
+    return true;
+  }
+  // Society-specific fallback heuristics
+  if (norm.includes("tvs") && norm.includes("peninsula") && (pAssoc.includes("peninsula") || pNorm.includes("peninsula") || (p.aliases && p.aliases.some(a => a.includes("peninsula"))))) {
+    return true;
+  }
+  if (norm.includes("bella-vista") && (pAssoc.includes("bella-vista") || pNorm.includes("bella-vista"))) {
+    return true;
+  }
+  if (norm.includes("hiranandani") && (pAssoc.includes("hiranandani") || pNorm.includes("hiranandani"))) {
+    return true;
+  }
+  return false;
+}
+
 export function getFallbackProposalByToken(rawToken: string): ProposalItem | null {
+  if (!rawToken) return null;
   const norm = normalizeToken(rawToken);
-  const list = globalThis.inMemoryProposalsStore || initialSampleProposals;
-  return list.find((p) => normalizeToken(p.token) === norm) || null;
+  const stripped = norm.replace(/-/g, "");
+  const rawLower = rawToken.trim().toLowerCase();
+  const list = [
+    ...(globalThis.inMemoryProposalsStore || []),
+    ...initialSampleProposals,
+  ];
+
+  return list.find((p) => proposalMatchesToken(p, norm, stripped, rawLower)) || null;
 }
 
 export function updateFallbackProposal(
   rawToken: string,
   updates: Partial<ProposalItem>
 ): ProposalItem | null {
+  if (!rawToken) return null;
   const norm = normalizeToken(rawToken);
-  const list = globalThis.inMemoryProposalsStore || initialSampleProposals;
-  const index = list.findIndex((p) => normalizeToken(p.token) === norm);
-  if (index === -1) return null;
+  const stripped = norm.replace(/-/g, "");
+  const rawLower = rawToken.trim().toLowerCase();
+
+  if (!globalThis.inMemoryProposalsStore) {
+    globalThis.inMemoryProposalsStore = JSON.parse(JSON.stringify(initialSampleProposals));
+  }
+  const list: ProposalItem[] = globalThis.inMemoryProposalsStore || [];
+  globalThis.inMemoryProposalsStore = list;
+
+  let index = list.findIndex((p) => proposalMatchesToken(p, norm, stripped, rawLower));
+
+  if (index === -1) {
+    const fromInitial = initialSampleProposals.find((p) => proposalMatchesToken(p, norm, stripped, rawLower));
+    if (fromInitial) {
+      list.unshift(JSON.parse(JSON.stringify(fromInitial)));
+      index = 0;
+    } else {
+      return null;
+    }
+  }
+
+  const currentItem = list[index];
+  if (!currentItem) return null;
 
   list[index] = {
-    ...list[index],
+    ...currentItem,
     ...updates,
     updatedAt: new Date(),
   };
@@ -232,5 +440,13 @@ export function updateFallbackProposal(
 }
 
 export function getAllFallbackProposals(): ProposalItem[] {
-  return globalThis.inMemoryProposalsStore || initialSampleProposals;
+  const store = globalThis.inMemoryProposalsStore || [];
+  const map = new Map<string, ProposalItem>();
+  for (const p of initialSampleProposals) {
+    map.set(normalizeToken(p.token), p);
+  }
+  for (const p of store) {
+    map.set(normalizeToken(p.token), p);
+  }
+  return Array.from(map.values());
 }

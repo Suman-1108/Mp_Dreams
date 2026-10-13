@@ -2,32 +2,33 @@ import { Schema, models, model } from "mongoose";
 
 const ProposalSchema = new Schema(
   {
-    token: { type: String, required: true, unique: true },
+    token: { type: String, required: true, unique: true, trim: true, lowercase: true },
     title: { type: String, required: true },
-    clientName: { type: String, required: true },
-    associationName: { type: String, required: true },
-    contactPerson: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
+    clientName: { type: String, default: "Apartment Resident Community" },
+    associationName: { type: String, default: "Residents Welfare Association" },
+    contactPerson: { type: String, default: "RWA Secretary / Committee" },
+    email: { type: String, default: "mpdreameventssolutions@gmail.com" },
+    phone: { type: String, default: "+91 73389 99723" },
     eventType: {
       type: String,
       default: "Apartment Shopping Expo & Carnival",
     },
-    eventDate: { type: String, required: true },
-    venue: { type: String, required: true },
+    eventDate: { type: String, default: "Upcoming Weekend" },
+    venue: { type: String, default: "Central Society Arena / Clubhouse" },
     expectedAttendance: { type: String, default: "1,200+ Resident Families" },
-    totalAmount: { type: Number, required: true },
-    advanceRequired: { type: Number, required: true },
+    totalAmount: { type: Number, default: 0 },
+    advanceRequired: { type: Number, default: 0 },
     scopeOfWork: [
       {
-        item: { type: String, required: true },
-        description: { type: String, required: true },
-        amount: { type: Number, required: true },
+        item: { type: String, default: "Event Service" },
+        description: { type: String, default: "" },
+        amount: { type: Number, default: 0 },
       },
     ],
     inclusions: [{ type: String }],
     exclusions: [{ type: String }],
     terms: [{ type: String }],
+    services: [{ type: String }],
     status: {
       type: String,
       enum: ["pending", "approved", "changes_requested", "rejected"],
@@ -46,6 +47,7 @@ const ProposalSchema = new Schema(
       default: "pending",
     },
     version: { type: Number, default: 1 },
+    aliases: [{ type: String }],
     revisionHistory: [
       {
         action: String,
@@ -57,6 +59,10 @@ const ProposalSchema = new Schema(
   },
   { timestamps: true }
 );
+
+ProposalSchema.index({ token: 1 });
+ProposalSchema.index({ aliases: 1 });
+ProposalSchema.index({ associationName: 1 });
 
 const Proposal = models.Proposal || model("Proposal", ProposalSchema);
 

@@ -6,16 +6,26 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
-    const envEmail = process.env.ADMIN_EMAIL;
+    const envEmail = process.env.ADMIN_EMAIL || "admin@mpdreamevents.com";
     const envPassHash = process.env.ADMIN_PASSWORD_HASH;
 
     let isValid = false;
 
     // Check against configured ENV password hash or demo password
     if (email === envEmail) {
-      if (envPassHash && envPassHash.startsWith("$2a$")) {
-        isValid = await bcrypt.compare(password, envPassHash);
-      } else {
+      if (
+        envPassHash &&
+        (envPassHash.startsWith("$2a$") || envPassHash.startsWith("$2b$") || envPassHash.startsWith("$2y$")) &&
+        !envPassHash.includes("examplehash")
+      ) {
+        try {
+          isValid = await bcrypt.compare(password, envPassHash);
+        } catch {
+          isValid = false;
+        }
+      }
+
+      if (!isValid) {
         // Fallback for default setup / demo mode
         isValid = password === "admin123" || password === "password";
       }

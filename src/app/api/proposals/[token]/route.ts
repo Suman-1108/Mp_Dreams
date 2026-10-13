@@ -5,8 +5,10 @@ import {
   normalizeToken,
   getFallbackProposalByToken,
   updateFallbackProposal,
+  proposalMatchesToken,
   ProposalItem,
 } from "@/lib/sampleProposals";
+
 
 export async function GET(
   req: Request,
@@ -14,35 +16,96 @@ export async function GET(
 ) {
   try {
     const { token } = await params;
-    const normToken = normalizeToken(token);
+    const rawToken = token || "";
+    const cleanToken = normalizeToken(rawToken);
+    const decodedToken = decodeURIComponent(rawToken).trim().toLowerCase();
+    const strippedToken = cleanToken.replace(/-/g, "");
 
+    const escaped = cleanToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const fuzzyPattern = new RegExp(`^${escaped.replace(/-/g, "[- ]*")}$`, "i");
+
+    let proposal = null;
     try {
       await connectDB();
-      const proposal = await Proposal.findOne({
-        $or: [{ token }, { token: normToken }],
+      proposal = await Proposal.findOne({
+        $or: [
+          { token: cleanToken },
+          { token: rawToken },
+          { token: decodedToken },
+          { aliases: cleanToken },
+          { aliases: rawToken },
+          { aliases: decodedToken },
+          { token: { $regex: fuzzyPattern } },
+        ],
       }).lean();
 
-      if (proposal) {
-        return NextResponse.json({ proposal });
+      // If still not found by direct match, search by matching stripped alphanumeric tokens or fuzzy proposal matches
+      if (!proposal) {
+        const allProps = await Proposal.find().lean();
+        proposal = allProps.find((p: unknown) => {
+          return proposalMatchesToken(p as ProposalItem, cleanToken, strippedToken, decodedToken);
+        }) || null;
       }
     } catch (dbErr) {
       console.warn("MongoDB connection unavailable for proposal, checking fallback:", dbErr);
     }
 
-    const fallback = getFallbackProposalByToken(token);
+    if (proposal) {
+      return NextResponse.json(
+        { proposal },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
+      );
+    }
+
+    const fallback =
+      getFallbackProposalByToken(rawToken) ||
+      getFallbackProposalByToken(cleanToken) ||
+      getFallbackProposalByToken(decodedToken);
+
     if (fallback) {
-      return NextResponse.json({ proposal: fallback });
+      // Upsert into MongoDB so it stays permanently in database
+      try {
+        await connectDB();
+        await Proposal.findOneAndUpdate(
+          { token: normalizeToken(fallback.token) },
+          { ...fallback, token: normalizeToken(fallback.token) },
+          { upsert: true, new: true, runValidators: false }
+        );
+      } catch {}
+
+      return NextResponse.json(
+        { proposal: fallback },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
+      );
     }
 
     return NextResponse.json(
-      { message: "Proposal not found or access link expired" },
-      { status: 404 }
+      { message: "Proposal link not found. Please verify the link with MP Dream Events." },
+      {
+        status: 404,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
     );
   } catch (err: unknown) {
     console.error("Error fetching proposal:", err);
     return NextResponse.json(
       { message: "Failed to fetch proposal details" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
     );
   }
 }
@@ -54,17 +117,23 @@ export async function POST(
   try {
     const { token } = await params;
     const body = await req.json();
-    const { action, approverName, designation, organization, comments } = body;
-    const normToken = normalizeToken(token);
+    const { action, approverName, designation, organization, comments, services } = body;
+    const cleanToken = normalizeToken(token);
+    const escaped = cleanToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const fuzzyPattern = new RegExp(`^${escaped.replace(/-/g, "[- ]*")}$`, "i");
 
-    const fallback = getFallbackProposalByToken(token);
+    const fallback = getFallbackProposalByToken(token) || getFallbackProposalByToken(cleanToken);
     let proposalData: ProposalItem | null = fallback;
 
     let dbProposal = null;
     try {
       await connectDB();
       dbProposal = await Proposal.findOne({
-        $or: [{ token }, { token: normToken }],
+        $or: [
+          { token: cleanToken },
+          { token: token },
+          { token: { $regex: fuzzyPattern } },
+        ],
       });
     } catch (dbErr) {
       console.warn("MongoDB unavailable during proposal update, updating in-memory:", dbErr);
@@ -72,7 +141,7 @@ export async function POST(
 
     if (!dbProposal && !fallback) {
       return NextResponse.json(
-        { message: "Proposal not found" },
+        { message: "Proposal link not found. Please check with MP Dream Events." },
         { status: 404 }
       );
     }
@@ -95,6 +164,9 @@ export async function POST(
 
       if (dbProposal) {
         dbProposal.status = "approved";
+        if (Array.isArray(services) && services.length > 0) {
+          dbProposal.services = services;
+        }
         dbProposal.approverDetails = approverDetails;
         dbProposal.revisionHistory.push(historyEntry);
         await dbProposal.save();
@@ -103,6 +175,7 @@ export async function POST(
 
       const updatedFallback = updateFallbackProposal(token, {
         status: "approved",
+        services: Array.isArray(services) && services.length > 0 ? services : fallback?.services,
         approverDetails,
         revisionHistory: [
           ...(fallback?.revisionHistory || []),
