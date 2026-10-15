@@ -601,34 +601,34 @@ function ProposalApprovalView({
           </div>
 
           {/* ========================================================
-              SELECT SERVICES REQUIRED FROM MP DREAM EVENTS
+              TURNKEY EVENT SERVICES INCLUDED (READ-ONLY FOR CLIENT)
               ======================================================== */}
           <div className="space-y-4 pt-3 border-t border-zinc-900">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/60 border border-purple-500/40 text-purple-300 text-[10px] font-bold uppercase tracking-wider mb-1.5 print:hidden">
                   <Sparkles className="w-3 h-3 text-purple-400" />
-                  <span>Turnkey Event Scope Menu</span>
+                  <span>Turnkey Event Scope (Locked for Authorization)</span>
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-white font-outfit print:text-black flex items-center gap-2">
-                  <span>Select Services Required from MP Dream Events</span>
+                  <span>Services Included from MP Dream Events</span>
                 </h2>
                 <p className="text-zinc-400 text-xs print:text-gray-700">
                   {isApproved
-                    ? "Official turnkey services authorized and locked by the Apartment Association committee:"
-                    : "Select or customize the required event services below for your society. These will be confirmed upon sign-off:"}
+                    ? "Official turnkey services authorized and signed by the Apartment Association committee:"
+                    : "The following turnkey event services are curated and delivered for your society by MP Dream Events as part of this proposal:"}
                 </p>
               </div>
 
               <div className="flex items-center space-x-2 shrink-0 print:hidden">
-                <span className="text-xs font-bold text-purple-300 px-3.5 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/40 flex items-center space-x-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
-                  <span>{selectedServices.length} Services Selected</span>
+                <span className="text-xs font-bold text-emerald-300 px-3.5 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{selectedServices.length} Services Included</span>
                 </span>
               </div>
             </div>
 
-            {/* Services Options Grid */}
+            {/* Services Display Grid (Read-Only) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {PROPOSAL_SERVICES_MENU.map((service, idx) => {
                 const IconComponent = service.icon;
@@ -637,17 +637,10 @@ function ProposalApprovalView({
                 return (
                   <div
                     key={idx}
-                    onClick={() => {
-                      if (!isApproved) toggleService(service.title);
-                    }}
-                    className={`p-4 rounded-2xl border transition-all duration-200 relative select-none flex flex-col justify-between ${
-                      !isApproved
-                        ? "cursor-pointer hover:border-purple-500/60 hover:-translate-y-0.5"
-                        : "cursor-default"
-                    } ${
+                    className={`p-4 rounded-2xl border transition-all duration-200 relative select-none flex flex-col justify-between cursor-default ${
                       isSelected
                         ? "bg-gradient-to-br from-purple-950/40 via-zinc-950 to-zinc-950 border-purple-500/50 shadow-md shadow-purple-950/40"
-                        : "bg-zinc-900/30 border-zinc-900 hover:bg-zinc-900/50 opacity-75 hover:opacity-100"
+                        : "bg-zinc-900/20 border-zinc-900/80 opacity-50"
                     } print:border print:border-black print:bg-white print:p-2.5`}
                   >
                     <div className="space-y-2">
@@ -657,7 +650,7 @@ function ProposalApprovalView({
                             className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition ${
                               isSelected
                                 ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-                                : "bg-zinc-850 text-zinc-400 border border-zinc-800"
+                                : "bg-zinc-850 text-zinc-500 border border-zinc-800"
                             } print:bg-gray-100 print:text-black`}
                           >
                             <IconComponent className="w-4 h-4" />
@@ -672,15 +665,15 @@ function ProposalApprovalView({
                           </div>
                         </div>
 
-                        {/* Interactive Selection Indicator */}
+                        {/* Status Check Indicator */}
                         <div
                           className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 border transition ${
                             isSelected
-                              ? "bg-purple-600 border-purple-500 text-white"
-                              : "border-zinc-750 bg-zinc-900 text-transparent"
+                              ? "bg-emerald-600 border-emerald-500 text-white"
+                              : "border-zinc-800 bg-zinc-900 text-transparent"
                           } print:border-black`}
                         >
-                          <Check className="w-3.5 h-3.5" />
+                          {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
                         </div>
                       </div>
 
@@ -692,10 +685,10 @@ function ProposalApprovalView({
                     <div className="pt-3 mt-3 border-t border-zinc-900/80 flex items-center justify-between text-[10px]">
                       <span
                         className={`font-semibold ${
-                          isSelected ? "text-purple-300" : "text-zinc-500"
+                          isSelected ? "text-purple-300" : "text-zinc-600"
                         } print:text-black`}
                       >
-                        {isSelected ? "Included in Scope" : "Optional / Click to Request"}
+                        {isSelected ? "Included in Scope" : "Not In Current Proposal"}
                       </span>
                       {isSelected ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 print:text-black">
@@ -703,7 +696,7 @@ function ProposalApprovalView({
                           <span>Active</span>
                         </span>
                       ) : (
-                        <span className="text-zinc-500 print:hidden">+ Add</span>
+                        <span className="text-zinc-600 text-[9px] uppercase tracking-wider">Excluded</span>
                       )}
                     </div>
                   </div>
@@ -712,38 +705,23 @@ function ProposalApprovalView({
             </div>
           </div>
 
-          {/* Inclusions & Exclusions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <div className="p-5 rounded-2xl bg-zinc-900/50 border border-zinc-900 space-y-2.5 print:border-black">
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" />
+          {/* Complimentary Event Deliverables Included (Full Width, Exclusions Removed) */}
+          {proposal.inclusions && proposal.inclusions.length > 0 && (
+            <div className="p-5 sm:p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 space-y-3 pt-2 print:border-black">
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Complimentary Event Deliverables Included</span>
               </div>
-              <ul className="space-y-2 text-xs text-zinc-300 print:text-black">
-                {proposal.inclusions?.map((inc: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-emerald-400 font-bold">•</span>
-                    <span>{inc}</span>
-                  </li>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs text-zinc-300 print:text-black">
+                {proposal.inclusions.map((inc: string, i: number) => (
+                  <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-950/60 border border-zinc-850/70">
+                    <span className="text-emerald-400 font-bold shrink-0 mt-0.5">•</span>
+                    <span className="leading-relaxed">{inc}</span>
+                  </div>
                 ))}
-              </ul>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-zinc-900/50 border border-zinc-900 space-y-2.5 print:border-black">
-              <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4" />
-                <span>Exclusions / Client Responsibilities</span>
               </div>
-              <ul className="space-y-2 text-xs text-zinc-300 print:text-black">
-                {proposal.exclusions?.map((exc: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-amber-400 font-bold">•</span>
-                    <span>{exc}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-          </div>
+          )}
 
           {/* Proposal Terms */}
           <div className="p-5 rounded-2xl bg-zinc-900/30 border border-zinc-900 space-y-2 text-xs print:border-black">

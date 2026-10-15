@@ -431,12 +431,37 @@ export function updateFallbackProposal(
   const currentItem = list[index];
   if (!currentItem) return null;
 
+  const existingAliases = Array.from(new Set([
+    ...(currentItem.aliases || []),
+    currentItem.token,
+    ...(updates.aliases || []),
+  ])).filter(Boolean);
+
   list[index] = {
     ...currentItem,
     ...updates,
+    aliases: existingAliases,
     updatedAt: new Date(),
   };
   return list[index];
+}
+
+export function deleteFallbackProposal(rawToken: string): boolean {
+  if (!rawToken) return false;
+  const norm = normalizeToken(rawToken);
+  const stripped = norm.replace(/-/g, "");
+  const rawLower = rawToken.trim().toLowerCase();
+
+  if (!globalThis.inMemoryProposalsStore) {
+    globalThis.inMemoryProposalsStore = JSON.parse(JSON.stringify(initialSampleProposals));
+  }
+  const list: ProposalItem[] = globalThis.inMemoryProposalsStore || [];
+  const index = list.findIndex((p) => proposalMatchesToken(p, norm, stripped, rawLower));
+  if (index !== -1) {
+    list.splice(index, 1);
+    return true;
+  }
+  return false;
 }
 
 export function getAllFallbackProposals(): ProposalItem[] {

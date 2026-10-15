@@ -262,3 +262,144 @@ export async function POST(
     return NextResponse.json({ message }, { status: 500 });
   }
 }
+
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  try {
+    const { token } = await params;
+    const body = await req.json();
+    const cleanToken = normalizeToken(token);
+    const escaped = cleanToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const fuzzyPattern = new RegExp(`^${escaped.replace(/-/g, "[- ]*")}$`, "i");
+
+    const rawNewToken = (body.token || "").trim();
+    const cleanNewToken = rawNewToken ? normalizeToken(rawNewToken) : cleanToken;
+
+    const fallback = getFallbackProposalByToken(token) || getFallbackProposalByToken(cleanToken);
+
+    let dbProposal = null;
+    try {
+      await connectDB();
+      dbProposal = await Proposal.findOne({
+        $or: [
+          { token: cleanToken },
+          { token: token },
+          { aliases: cleanToken },
+          { aliases: token },
+          { token: { $regex: fuzzyPattern } },
+        ],
+      });
+    } catch (dbErr) {
+      console.warn("MongoDB unavailable during proposal PUT, updating in-memory store:", dbErr);
+    }
+
+    if (!dbProposal && !fallback) {
+      return NextResponse.json({ message: "Proposal not found" }, { status: 404 });
+    }
+
+    const aliases = Array.from(
+      new Set([
+        ...(dbProposal?.aliases || fallback?.aliases || []),
+        cleanToken,
+        token,
+        cleanNewToken,
+      ])
+    ).filter(Boolean);
+
+    const updateFields: Partial<ProposalItem> = {
+      title: body.title !== undefined ? body.title : (dbProposal?.title || fallback?.title),
+      associationName: body.associationName !== undefined ? body.associationName : (dbProposal?.associationName || fallback?.associationName),
+      clientName: body.clientName !== undefined ? body.clientName : (body.associationName || dbProposal?.clientName || fallback?.clientName),
+      token: cleanNewToken,
+      aliases,
+      contactPerson: body.contactPerson !== undefined ? body.contactPerson : (dbProposal?.contactPerson || fallback?.contactPerson),
+      phone: body.phone !== undefined ? body.phone : (dbProposal?.phone || fallback?.phone),
+      email: body.email !== undefined ? body.email : (dbProposal?.email || fallback?.email),
+      eventDate: body.eventDate !== undefined ? body.eventDate : (dbProposal?.eventDate || fallback?.eventDate),
+      venue: body.venue !== undefined ? body.venue : (dbProposal?.venue || fallback?.venue),
+      expectedAttendance: body.expectedAttendance !== undefined ? body.expectedAttendance : (dbProposal?.expectedAttendance || fallback?.expectedAttendance),
+      scopeOfWork: Array.isArray(body.scopeOfWork) ? body.scopeOfWork : (dbProposal?.scopeOfWork || fallback?.scopeOfWork),
+      inclusions: Array.isArray(body.inclusions) ? body.inclusions : (dbProposal?.inclusions || fallback?.inclusions),
+      exclusions: Array.isArray(body.exclusions) ? body.exclusions : (dbProposal?.exclusions || fallback?.exclusions || []),
+      terms: Array.isArray(body.terms) ? body.terms : (dbProposal?.terms || fallback?.terms),
+      services: Array.isArray(body.services) ? body.services : (dbProposal?.services || fallback?.services),
+      status: body.status || dbProposal?.status || fallback?.status || "pending",
+    };
+
+    let updatedProposal = null;
+
+    if (dbProposal) {
+      Object.assign(dbProposal, updateFields);
+      if (!dbProposal.revisionHistory) {
+        dbProposal.revisionHistory = [];
+      }
+      dbProposal.revisionHistory.push({
+        action: "Proposal Updated by Admin",
+        performedBy: "Admin",
+        timestamp: new Date(),
+        notes: "Proposal details customized via Admin Panel.",
+      });
+      await dbProposal.save();
+      updatedProposal = dbProposal.toObject();
+    }
+
+    const updatedFallback = updateFallbackProposal(token, {
+      ...updateFields,
+      revisionHistory: [
+        ...(fallback?.revisionHistory || []),
+        {
+          action: "Proposal Updated by Admin",
+          performedBy: "Admin",
+          timestamp: new Date(),
+          notes: "Proposal details customized via Admin Panel.",
+        },
+      ],
+    });
+
+    if (!updatedProposal) {
+      updatedProposal = updatedFallback;
+    }
+
+    return NextResponse.json({
+      message: "Proposal updated successfully!",
+      proposal: updatedProposal,
+      link: `/approval/${cleanNewToken}`,
+    });
+  } catch (err: unknown) {
+    console.error("Error updating proposal:", err);
+    const message = err instanceof Error ? err.message : "Failed to update proposal";
+    return NextResponse.json({ message }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ token: string }> }
+) {
+  try {
+    const { token } = await params;
+    const cleanToken = normalizeToken(token);
+    try {
+      await connectDB();
+      await Proposal.deleteOne({
+        $or: [
+          { token: cleanToken },
+          { token: token },
+          { aliases: cleanToken },
+          { aliases: token },
+        ],
+      });
+    } catch (dbErr) {
+      console.warn("MongoDB delete error, falling back to in-memory store:", dbErr);
+    }
+    const { deleteFallbackProposal } = await import("@/lib/sampleProposals");
+    deleteFallbackProposal(token);
+    return NextResponse.json({ message: "Proposal deleted successfully" });
+  } catch (err: unknown) {
+    console.error("Error deleting proposal:", err);
+    return NextResponse.json({ message: "Failed to delete proposal" }, { status: 500 });
+  }
+}
+

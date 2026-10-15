@@ -10,6 +10,12 @@ import {
   Copy,
   ExternalLink,
   Sparkles,
+  Pencil,
+  Trash2,
+  X,
+  RotateCw,
+  Save,
+  Lock,
 } from "lucide-react";
 import { AVAILABLE_SERVICES_MENU, normalizeToken } from "@/lib/sampleProposals";
 
@@ -60,21 +66,28 @@ interface DashboardEvent {
 }
 
 interface DashboardProposal {
-  _id: string;
+  _id?: string;
   token: string;
   clientName: string;
   associationName?: string;
   societyName?: string;
   title: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
   venue?: string;
   eventDate?: string;
   eventDates?: string;
+  expectedAttendance?: string;
   totalEstimate?: number;
   totalAmount?: number;
   advanceRequired?: number;
   status: string;
   createdAt?: string;
   terms?: string[];
+  inclusions?: string[];
+  exclusions?: string[];
+  scopeOfWork?: Array<{ item: string; description?: string; amount?: number }>;
   services?: string[];
   deliverables?: Array<{ item: string; details: string; status?: string }>;
   approverDetails?: {
@@ -152,11 +165,202 @@ export default function AdminDashboardPage() {
     expectedAttendance: "1,500+ Resident Families (Approx. 4,500 Attendees)",
     scopeOfWorkText: "Stall Canopies: 20 commercial weather-safe canopies (10x10 ft) with tables & chairs\nPower Infrastructure: Power distribution boxes, LED floodlights & silent generator backup\nAudio & Resident PA: High-clarity sound system, cordless mics & cultural program stage\nKids Carnival Zone: Bouncy castle, interactive carnival games, popcorn & candy counter\nGround Marshals: Dedicated coordination crew for crowd safety, vendor load-in & cleaning",
     inclusionsText: "20 Commercial vendor canopies with tables, frilled covers, and lighting\nComplete electrical distribution and silent generator backup\nProfessional audio system and family DJ setup for evening cultural programs\nKids games and entertainment zone\nDedicated on-ground event management crew and cleaning team",
-    exclusionsText: "Direct vendor sales settlements (handled directly with vendors)\nResident private purchases or individual apartment catering\nSpecial municipal police permissions (handled jointly with RWA)",
+    exclusionsText: "",
     termsText: "Stall setup will begin 12 hours prior to the event commencement with zero obstruction to resident parking.\nZero cost and zero financial liability for the Residents Welfare Association; all commercial vendor stall fees handled directly by MP Dream Events.\nStrict adherence to society quiet hours after 10:00 PM for all audio equipment.\nDedicated MP Dream Events cleaning marshals will ensure 100% waste clearance post-event.\nVendor vehicles and staff verified and security gate passes submitted to security office in advance.",
   });
   const [proposalCreating, setProposalCreating] = useState(false);
   const [proposalMsg, setProposalMsg] = useState("");
+
+  // Edit Proposal Modal State
+  const [editingProposal, setEditingProposal] = useState<DashboardProposal | null>(null);
+  const [editProposalForm, setEditProposalForm] = useState({
+    title: "",
+    associationName: "",
+    clientName: "",
+    token: "",
+    contactPerson: "",
+    phone: "",
+    email: "",
+    eventDate: "",
+    venue: "",
+    expectedAttendance: "",
+    status: "pending",
+    scopeOfWorkText: "",
+    inclusionsText: "",
+    termsText: "",
+  });
+  const [editProposalServices, setEditProposalServices] = useState<string[]>([]);
+  const [proposalUpdating, setProposalUpdating] = useState(false);
+
+  const openEditProposalModal = (prop: DashboardProposal) => {
+    setEditingProposal(prop);
+
+    let scopeText = "";
+    if (Array.isArray(prop.scopeOfWork) && prop.scopeOfWork.length > 0) {
+      scopeText = prop.scopeOfWork
+        .map((s) => `${s.item || "Service"}: ${s.description || ""}`)
+        .join("\n");
+    } else if (Array.isArray(prop.deliverables) && prop.deliverables.length > 0) {
+      scopeText = prop.deliverables
+        .map((d) => `${d.item || "Service"}: ${d.details || ""}`)
+        .join("\n");
+    } else {
+      scopeText = "Stall Canopies: 20 commercial weather-safe canopies (10x10 ft) with tables & chairs\nPower Infrastructure: Power distribution boxes, LED floodlights & silent generator backup\nAudio & Resident PA: High-clarity sound system, cordless mics & cultural program stage\nKids Carnival Zone: Bouncy castle, interactive carnival games, popcorn & candy counter\nGround Marshals: Dedicated coordination crew for crowd safety, vendor load-in & cleaning";
+    }
+
+    const incText = Array.isArray(prop.inclusions) && prop.inclusions.length > 0
+      ? prop.inclusions.join("\n")
+      : "20 Commercial vendor canopies with tables, frilled covers, and lighting\nComplete electrical distribution and silent generator backup\nProfessional audio system and family DJ setup for evening cultural programs\nKids games and entertainment zone\nDedicated on-ground event management crew and cleaning team";
+
+    const tText = Array.isArray(prop.terms) && prop.terms.length > 0
+      ? prop.terms.join("\n")
+      : "Stall setup will begin 12 hours prior to the event commencement with zero obstruction to resident parking.\nZero cost and zero financial liability for the Residents Welfare Association; all commercial vendor stall fees handled directly by MP Dream Events.\nStrict adherence to society quiet hours after 10:00 PM for all audio equipment.\nDedicated MP Dream Events cleaning marshals will ensure 100% waste clearance post-event.\nVendor vehicles and staff verified and security gate passes submitted to security office in advance.";
+
+    setEditProposalForm({
+      title: prop.title || "",
+      associationName: prop.associationName || prop.clientName || "",
+      clientName: prop.clientName || prop.associationName || "",
+      token: prop.token || "",
+      contactPerson: prop.contactPerson || "",
+      phone: prop.phone || "",
+      email: prop.email || "",
+      eventDate: prop.eventDate || prop.eventDates || "",
+      venue: prop.venue || "",
+      expectedAttendance: prop.expectedAttendance || "1,500+ Resident Families (Approx. 4,500 Attendees)",
+      status: prop.status || "pending",
+      scopeOfWorkText: scopeText,
+      inclusionsText: incText,
+      termsText: tText,
+    });
+
+    setEditProposalServices(
+      Array.isArray(prop.services) && prop.services.length > 0
+        ? [...prop.services]
+        : [...AVAILABLE_SERVICES_MENU.slice(0, 6)]
+    );
+  };
+
+  const handleUpdateProposal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProposal) return;
+    setProposalUpdating(true);
+
+    try {
+      const scopeItems = editProposalForm.scopeOfWorkText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const parts = line.split(":");
+          return {
+            item: parts[0]?.trim() || "Event Service",
+            description: parts.slice(1).join(":").trim() || line,
+            amount: 0,
+          };
+        });
+
+      const inclusions = editProposalForm.inclusionsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const terms = editProposalForm.termsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const targetSlug = editProposalForm.token.trim()
+        ? normalizeToken(editProposalForm.token)
+        : normalizeToken(editingProposal.token);
+
+      const payload = {
+        title: editProposalForm.title,
+        associationName: editProposalForm.associationName,
+        clientName: editProposalForm.clientName || editProposalForm.associationName,
+        token: targetSlug,
+        contactPerson: editProposalForm.contactPerson,
+        phone: editProposalForm.phone,
+        email: editProposalForm.email,
+        eventDate: editProposalForm.eventDate,
+        venue: editProposalForm.venue,
+        expectedAttendance: editProposalForm.expectedAttendance,
+        scopeOfWork: scopeItems,
+        inclusions,
+        exclusions: [],
+        terms,
+        services: editProposalServices,
+        status: editProposalForm.status,
+      };
+
+      const res = await fetch(`/api/proposals/${encodeURIComponent(editingProposal.token)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const updatedItem = data.proposal || payload;
+
+        setProposals((prev) =>
+          prev.map((p) => (p.token === editingProposal.token ? { ...p, ...updatedItem } : p))
+        );
+
+        if (typeof window !== "undefined") {
+          try {
+            const offlineList = JSON.parse(localStorage.getItem("mp_offline_proposals") || "[]");
+            const idx = offlineList.findIndex(
+              (p: DashboardProposal) => normalizeToken(p.token) === normalizeToken(editingProposal.token)
+            );
+            if (idx >= 0) {
+              offlineList[idx] = { ...offlineList[idx], ...updatedItem };
+            } else {
+              offlineList.unshift(updatedItem);
+            }
+            localStorage.setItem("mp_offline_proposals", JSON.stringify(offlineList));
+          } catch {}
+        }
+
+        setProposalMsg(`Proposal "${editProposalForm.associationName}" updated successfully!`);
+        setEditingProposal(null);
+        await fetchData();
+      } else {
+        const d = await res.json();
+        alert(d.message || "Failed to update proposal");
+      }
+    } catch (err) {
+      console.error("Error updating proposal:", err);
+      alert("Error updating proposal");
+    } finally {
+      setProposalUpdating(false);
+    }
+  };
+
+  const handleDeleteProposal = async (token: string, assocName: string) => {
+    if (!confirm(`Are you sure you want to delete proposal for "${assocName}"?`)) return;
+    try {
+      const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setProposals((prev) => prev.filter((p) => p.token !== token));
+        if (typeof window !== "undefined") {
+          try {
+            const offlineList = JSON.parse(localStorage.getItem("mp_offline_proposals") || "[]");
+            const filtered = offlineList.filter(
+              (p: DashboardProposal) => normalizeToken(p.token) !== normalizeToken(token)
+            );
+            localStorage.setItem("mp_offline_proposals", JSON.stringify(filtered));
+          } catch {}
+        }
+        setProposalMsg(`Proposal deleted successfully.`);
+      } else {
+        alert("Failed to delete proposal.");
+      }
+    } catch {
+      alert("Error deleting proposal.");
+    }
+  };
 
   const handleCreateProposal = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,10 +386,7 @@ export default function AdminDashboardPage() {
         .map((l) => l.trim())
         .filter(Boolean);
 
-      const exclusions = newProposal.exclusionsText
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
+      const exclusions: string[] = [];
 
       const terms = newProposal.termsText
         .split("\n")
@@ -256,7 +457,7 @@ export default function AdminDashboardPage() {
           expectedAttendance: "1,500+ Resident Families (Approx. 4,500 Attendees)",
           scopeOfWorkText: "Stall Canopies: 20 commercial weather-safe canopies (10x10 ft) with tables & chairs\nPower Infrastructure: Power distribution boxes, LED floodlights & silent generator backup\nAudio & Resident PA: High-clarity sound system, cordless mics & cultural program stage\nKids Carnival Zone: Bouncy castle, interactive carnival games, popcorn & candy counter\nGround Marshals: Dedicated coordination crew for crowd safety, vendor load-in & cleaning",
           inclusionsText: "20 Commercial vendor canopies with tables, frilled covers, and lighting\nComplete electrical distribution and silent generator backup\nProfessional audio system and family DJ setup for evening cultural programs\nKids games and entertainment zone\nDedicated on-ground event management crew and cleaning team",
-          exclusionsText: "Direct vendor sales settlements (handled directly with vendors)\nResident private purchases or individual apartment catering\nSpecial municipal police permissions (handled jointly with RWA)",
+          exclusionsText: "",
           termsText: "Stall setup will begin 12 hours prior to the event commencement with zero obstruction to resident parking.\nZero cost and zero financial liability for the Residents Welfare Association; all commercial vendor stall fees handled directly by MP Dream Events.\nStrict adherence to society quiet hours after 10:00 PM for all audio equipment.\nDedicated MP Dream Events cleaning marshals will ensure 100% waste clearance post-event.\nVendor vehicles and staff verified and security gate passes submitted to security office in advance.",
         });
         await fetchData();
@@ -929,7 +1130,18 @@ export default function AdminDashboardPage() {
                       type="text"
                       required
                       value={newProposal.title}
-                      onChange={(e) => setNewProposal({ ...newProposal, title: e.target.value })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const autoSlug = (newProposal.associationName || val || "society-proposal")
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/(^-|-$)+/g, "");
+                        setNewProposal({
+                          ...newProposal,
+                          title: val,
+                          token: newProposal.associationName ? newProposal.token : autoSlug,
+                        });
+                      }}
                       placeholder="e.g. TVS Emerald Peninsula Grand Shopping Carnival 2026"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
                     />
@@ -937,7 +1149,10 @@ export default function AdminDashboardPage() {
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block text-slate-300 font-semibold">Unique Proposal URL Token</label>
+                      <label className="block text-slate-300 font-semibold flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Unique Proposal URL Token</span>
+                      </label>
                       <span className="text-[10px] text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30">
                         Auto-Generated
                       </span>
@@ -946,8 +1161,8 @@ export default function AdminDashboardPage() {
                       type="text"
                       readOnly
                       value={newProposal.token}
-                      placeholder="Auto-generated from society name (e.g. tvs-emerald-peninsula-apartment-association)"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-800 text-purple-300 font-mono focus:outline-none cursor-default select-all"
+                      placeholder="Auto-generated from society name (e.g. tvs-emerald-peninsula)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-800 text-purple-300 font-mono text-xs focus:outline-none cursor-default select-all"
                     />
                     <span className="text-[10px] text-slate-400 mt-1 block">
                       Client approval link will be: <strong className="text-purple-400 font-mono">/approval/{newProposal.token || "auto-generated-token"}</strong>
@@ -1134,6 +1349,269 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
+            {/* EDIT PROPOSAL MODAL */}
+            {editingProposal && (
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+                <div className="bg-slate-900 border-2 border-purple-500/50 rounded-2xl max-w-4xl w-full p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                      <h4 className="text-base font-bold text-white font-outfit flex items-center gap-2">
+                        <Pencil className="w-4 h-4 text-amber-400" />
+                        <span>Edit Proposal: {editingProposal.associationName || editingProposal.clientName}</span>
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Customize proposal deliverables, token URL, contact details, services, or terms for this society.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditingProposal(null)}
+                      className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleUpdateProposal} className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">Apartment / Society Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={editProposalForm.associationName}
+                        onChange={(e) =>
+                          setEditProposalForm({
+                            ...editProposalForm,
+                            associationName: e.target.value,
+                            clientName: e.target.value,
+                          })
+                        }
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">Proposal Title *</label>
+                      <input
+                        type="text"
+                        required
+                        value={editProposalForm.title}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, title: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-slate-300 font-semibold flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Unique Proposal URL Token</span>
+                        </label>
+                        <span className="text-[10px] text-purple-400 font-medium px-2 py-0.5 rounded-full bg-purple-950/60 border border-purple-500/30">
+                          Auto-Generated / Fixed
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        readOnly
+                        value={editProposalForm.token}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-800 text-purple-300 font-mono text-xs focus:outline-none cursor-default select-all"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">
+                        Approval link: <strong className="text-purple-400 font-mono">/approval/{editProposalForm.token}</strong>
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">Proposal Status</label>
+                      <select
+                        value={editProposalForm.status}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, status: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      >
+                        <option value="pending">Pending Approval</option>
+                        <option value="approved">Approved & Signed</option>
+                        <option value="changes_requested">Revisions Requested</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">Event Date(s) *</label>
+                      <input
+                        type="text"
+                        required
+                        value={editProposalForm.eventDate}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, eventDate: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">Venue Inside Apartment *</label>
+                      <input
+                        type="text"
+                        required
+                        value={editProposalForm.venue}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, venue: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">Expected Footfall / Audience</label>
+                      <input
+                        type="text"
+                        value={editProposalForm.expectedAttendance}
+                        onChange={(e) =>
+                          setEditProposalForm({ ...editProposalForm, expectedAttendance: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Person</label>
+                      <input
+                        type="text"
+                        value={editProposalForm.contactPerson}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, contactPerson: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Phone</label>
+                      <input
+                        type="text"
+                        value={editProposalForm.phone}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, phone: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-semibold">RWA Contact Email</label>
+                      <input
+                        type="email"
+                        value={editProposalForm.email}
+                        onChange={(e) => setEditProposalForm({ ...editProposalForm, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-slate-300 mb-1 font-semibold">
+                        Scope of Work & Deliverables (One line per deliverable: Item: Description) *
+                      </label>
+                      <textarea
+                        rows={4}
+                        required
+                        value={editProposalForm.scopeOfWorkText}
+                        onChange={(e) =>
+                          setEditProposalForm({ ...editProposalForm, scopeOfWorkText: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 font-mono text-[11px]"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-slate-300 mb-1 font-semibold">
+                        Complimentary Deliverables Included (One per line)
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={editProposalForm.inclusionsText}
+                        onChange={(e) =>
+                          setEditProposalForm({ ...editProposalForm, inclusionsText: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 text-[11px]"
+                      />
+                    </div>
+
+                    {/* SELECT SERVICES INCLUDED */}
+                    <div className="sm:col-span-2 space-y-2.5 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-purple-300 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Turnkey Services Required from MP Dream Events:</span>
+                        </label>
+                        <span className="text-[10px] text-purple-400 font-semibold px-2 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/30">
+                          {editProposalServices.length} Selected
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
+                        {AVAILABLE_SERVICES_MENU.map((srv, idx) => {
+                          const isChecked = editProposalServices.includes(srv);
+                          return (
+                            <button
+                              type="button"
+                              key={idx}
+                              onClick={() => {
+                                setEditProposalServices((prev) =>
+                                  prev.includes(srv) ? prev.filter((s) => s !== srv) : [...prev, srv]
+                                );
+                              }}
+                              className={`p-2.5 rounded-xl border text-left text-xs font-medium transition flex items-center space-x-2.5 cursor-pointer ${
+                                isChecked
+                                  ? "bg-purple-950/60 border-purple-500/60 text-purple-200 shadow-sm"
+                                  : "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700"
+                              }`}
+                            >
+                              <div
+                                className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+                                  isChecked
+                                    ? "bg-purple-600 border-purple-500 text-white"
+                                    : "border-slate-700 bg-slate-800"
+                                }`}
+                              >
+                                {isChecked && <CheckCircle2 className="w-3 h-3 text-white" />}
+                              </div>
+                              <span className="truncate">{srv}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* CUSTOMIZABLE TERMS & CONDITIONS PER APARTMENT */}
+                    <div className="sm:col-span-2 p-4 rounded-xl bg-purple-950/20 border border-purple-500/40 space-y-2">
+                      <label className="block text-purple-300 font-bold text-xs uppercase tracking-wider">
+                        Apartment Guidelines & Execution Terms (Customizable for Each Society) *
+                      </label>
+                      <textarea
+                        rows={5}
+                        required
+                        value={editProposalForm.termsText}
+                        onChange={(e) =>
+                          setEditProposalForm({ ...editProposalForm, termsText: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500 text-[11px] leading-relaxed"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2 pt-2 flex items-center justify-between border-t border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setEditingProposal(null)}
+                        className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={proposalUpdating}
+                        className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase tracking-wider text-xs transition shadow-lg shadow-purple-600/30 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{proposalUpdating ? "Saving Changes..." : "Save Proposal Changes"}</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
             {/* Proposals Cards List */}
             <div className="space-y-4">
               {proposals.map((prop) => (
@@ -1225,14 +1703,24 @@ export default function AdminDashboardPage() {
                       <span className="font-mono text-[11px]">/approval/{prop.token}</span>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openEditProposalModal(prop)}
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold transition cursor-pointer"
+                        title="Edit proposal scope, token, and guidelines"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Edit Proposal</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => {
                           const url = `${window.location.origin}/approval/${encodeURIComponent(prop.token)}`;
                           safeCopy(url, prop.token);
                         }}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition"
+                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition cursor-pointer"
                       >
                         <Copy className="w-3.5 h-3.5" />
                         <span>{copiedToken === prop.token ? "Copied Link!" : "Copy Link"}</span>
@@ -1247,6 +1735,15 @@ export default function AdminDashboardPage() {
                         <ExternalLink className="w-3.5 h-3.5" />
                         <span>Open Client Portal</span>
                       </a>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProposal(prop.token, prop.associationName || prop.title)}
+                        className="inline-flex items-center space-x-1.5 p-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-500/30 font-semibold transition cursor-pointer"
+                        title="Delete Proposal"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
