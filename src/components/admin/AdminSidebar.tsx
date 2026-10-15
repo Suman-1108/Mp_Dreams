@@ -13,6 +13,7 @@ import {
   Store,
   LayoutDashboard,
   ShieldCheck,
+  Receipt,
 } from "lucide-react";
 
 export default function AdminSidebar({ activeTab, setActiveTab }: { activeTab: string; setActiveTab: (tab: string) => void }) {
@@ -32,6 +33,7 @@ export default function AdminSidebar({ activeTab, setActiveTab }: { activeTab: s
     { id: "overview", label: "Dashboard Overview", icon: LayoutDashboard },
     { id: "events", label: "Event & Expo Management", icon: Calendar },
     { id: "proposals", label: "Client Approvals & Proposals", icon: ShieldCheck },
+    { id: "invoices", label: "Invoices & Receipts", icon: Receipt },
     { id: "vendors", label: "Vendor Applications", icon: Store },
     { id: "enquiries", label: "Customer Enquiries", icon: MessageSquare },
     { id: "bookings", label: "Stall Reservations", icon: Building2 },

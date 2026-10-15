@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import brandLogo from "@/assets/logo.png";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import {
   Building2,
@@ -16,8 +18,12 @@ import {
   RotateCw,
   Save,
   Lock,
+  Receipt,
+  AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { AVAILABLE_SERVICES_MENU, normalizeToken } from "@/lib/sampleProposals";
+import InvoiceManager from "@/components/admin/InvoiceManager";
 
 interface DashboardEnquiry {
   _id: string;
@@ -119,6 +125,8 @@ export default function AdminDashboardPage() {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [createdProposalLink, setCreatedProposalLink] = useState<string | null>(null);
+  const [deletingProposal, setDeletingProposal] = useState<{ token: string; assocName: string } | null>(null);
+  const [isDeletingProposal, setIsDeletingProposal] = useState(false);
 
   const [proposalServices, setProposalServices] = useState<string[]>([
     "Stall & Vendor Curation",
@@ -336,8 +344,10 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteProposal = async (token: string, assocName: string) => {
-    if (!confirm(`Are you sure you want to delete proposal for "${assocName}"?`)) return;
+  const confirmDeleteProposal = async () => {
+    if (!deletingProposal) return;
+    setIsDeletingProposal(true);
+    const { token, assocName } = deletingProposal;
     try {
       const res = await fetch(`/api/proposals/${encodeURIComponent(token)}`, {
         method: "DELETE",
@@ -353,12 +363,15 @@ export default function AdminDashboardPage() {
             localStorage.setItem("mp_offline_proposals", JSON.stringify(filtered));
           } catch {}
         }
-        setProposalMsg(`Proposal deleted successfully.`);
+        setProposalMsg(`Proposal for "${assocName}" deleted successfully.`);
+        setDeletingProposal(null);
       } else {
-        alert("Failed to delete proposal.");
+        setProposalMsg("Failed to delete proposal.");
       }
     } catch {
-      alert("Error deleting proposal.");
+      setProposalMsg("Error deleting proposal.");
+    } finally {
+      setIsDeletingProposal(false);
     }
   };
 
@@ -624,6 +637,48 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Full-page luxury loading animation on initial load
+  if (loading && proposals.length === 0 && events.length === 0 && enquiries.length === 0) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center space-y-6 select-none relative overflow-hidden">
+        {/* Ambient neon radial glows */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative">
+          {/* Animated concentric spinning rings */}
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-amber-500/20 border-t-amber-400 animate-spin" />
+          <div className="absolute inset-2 rounded-full border-2 border-purple-500/20 border-b-purple-400 animate-spin [animation-duration:2.5s]" />
+
+          {/* Centered Pulsing Logo */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative w-11 h-11 sm:w-12 sm:h-12 animate-pulse drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+              <Image src={brandLogo} alt="MP Dream Events" fill className="object-contain" priority />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2 z-10 max-w-sm">
+          <div className="flex items-center justify-center space-x-2 text-amber-400 text-xs font-bold uppercase tracking-widest font-outfit">
+            <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
+            <span>MP DREAM EVENTS & SOLUTIONS</span>
+          </div>
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            Loading Administration Hub...
+          </h2>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Synchronizing proposals, vendor stall applications & accounting records...
+          </p>
+        </div>
+
+        {/* Shimmer loading progress bar */}
+        <div className="w-56 h-1 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+          <div className="w-full h-full bg-gradient-to-r from-amber-500 via-purple-500 to-amber-500 rounded-full animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-black text-slate-100 font-sans">
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -737,6 +792,28 @@ export default function AdminDashboardPage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Quick Invoicing Callout in Overview */}
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-950/40 via-purple-950/30 to-slate-900 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                  <Receipt className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm">Commercial Invoices & Payment Receipts Generator</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Generate branded GST-compliant tax invoices and official advance payment receipts with instant printable A4 PDF output.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("invoices")}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition shadow-md whitespace-nowrap"
+              >
+                Open Invoice Hub →
+              </button>
             </div>
           </div>
         )}
@@ -1738,7 +1815,12 @@ export default function AdminDashboardPage() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteProposal(prop.token, prop.associationName || prop.title)}
+                        onClick={() =>
+                          setDeletingProposal({
+                            token: prop.token,
+                            assocName: prop.associationName || prop.title,
+                          })
+                        }
                         className="inline-flex items-center space-x-1.5 p-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-500/30 font-semibold transition cursor-pointer"
                         title="Delete Proposal"
                       >
@@ -1750,6 +1832,15 @@ export default function AdminDashboardPage() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* INVOICES & RECEIPTS TAB */}
+        {activeTab === "invoices" && (
+          <InvoiceManager
+            proposals={proposals}
+            vendors={vendors}
+            enquiries={enquiries}
+          />
         )}
 
         {/* STALL BOOKINGS & GALLERY placeholder tabs */}
@@ -1764,6 +1855,63 @@ export default function AdminDashboardPage() {
         )}
 
       </main>
+
+      {/* CUSTOM PROPOSAL DELETE CONFIRMATION MODAL WITH ANIMATED SPINNER */}
+      {deletingProposal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center space-x-3 text-rose-400">
+              <div className="p-3 rounded-2xl bg-rose-950/60 border border-rose-500/30">
+                <AlertTriangle className="w-6 h-6 text-rose-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-base">Delete Proposal</h3>
+                <p className="text-[11px] text-slate-400">This action permanently removes this client portal link.</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Society:</span>
+                <span className="font-bold text-white truncate max-w-[200px]">{deletingProposal.assocName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Token:</span>
+                <span className="font-mono text-purple-400">/approval/{deletingProposal.token}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end space-x-3 pt-2">
+              <button
+                type="button"
+                disabled={isDeletingProposal}
+                onClick={() => setDeletingProposal(null)}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingProposal}
+                onClick={confirmDeleteProposal}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/30 flex items-center space-x-2 cursor-pointer"
+              >
+                {isDeletingProposal ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Deleting Proposal...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
